@@ -10,7 +10,28 @@
     "postinstall": "nuxt prepare"
   },
   "devDependencies": {
+    "@ant-design-vue/nuxt": "^1.1.1",
     "@nuxt/devtools": "latest",
-    "nuxt": "^3.7.4"
+    "@nuxtjs/tailwindcss": "^6.8.0",
+    "@tailwindcss/aspect-ratio": "^0.4.2",
+    "@tailwindcss/forms": "^0.5.6",
+    "@tailwindcss/typography": "^0.5.10",
+    "@types/react": "18.2.34",
+    "@vueuse/core": "^10.4.1",
+    "@vueuse/nuxt": "^10.4.1",
+    "dayjs-nuxt": "^1.2.3",
+    "nuxt": "^3.7.4",
+    "nuxt-icon": "^0.5.0",
+    "typescript": "5.2.2"
+  },
+  "dependencies": {
+    "@nuxt/image": "^1.0.0-rc.2",
+    "@pinia/nuxt": "^0.4.11",
+    "@popperjs/core": "^2.11.8",
+    "@vueform/multiselect": "^2.6.6",
+    "pinia": "^2.1.6",
+    "v-calendar": "^3.1.1",
+    "vue": "latest",
+    "vue3-lottie": "^3.2.0"
   }
 }
