@@ -1,7 +1,9 @@
 import { useMemberstore } from "~/server/store/members";
+import { useOrgsStore } from "~/server/store/organizations";
 
 export default function useMembers() {
     const members = useMemberstore();
+    const orgs = useOrgsStore();
     const router = useRouter();
 
     async function getOrgMembers() {
@@ -15,7 +17,7 @@ export default function useMembers() {
                 return;
             }
             members.setLoadingMembers(true);
-            const res = await useApiFetch(`/api/read/organization/${router.currentRoute.value.params.org}/members`)
+            const res = await useApiFetch(`/api/read/organization/${orgs.activeOrganization.org_uuid}/members`)
                 .finally(() => { members.setLoadingMembers(false) });
             const { code, message, orgMembers } = res as Response;
             members.getOrgMembers(orgMembers);

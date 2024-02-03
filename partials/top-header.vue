@@ -182,13 +182,13 @@ onClickOutside(createNewMenuRef, () => {
                                     New Organization
                                 </span>
                             </button>
-                            <NuxtLink to="/settings"
+                            <!-- <NuxtLink to="/settings"
                                 class="w-full py-2 px-4 flex flex-row gap-2 items-center justify-start text-gray-200 font-medium text-base tracking-wide transition duration-200 hover:bg-emerald-splash">
                                 <Icon name="eos-icons:admin-outlined" />
                                 <span>
                                     Admin Console
                                 </span>
-                            </NuxtLink>
+                            </NuxtLink> -->
                             <NuxtLink to="/settings"
                                 class="w-full py-2 px-4 flex flex-row gap-2 items-center justify-start text-gray-200 font-medium text-base tracking-wide transition duration-200 hover:bg-emerald-splash">
                                 <Icon name="heroicons:cog-8-tooth" class="text-xl" />

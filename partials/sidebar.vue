@@ -105,13 +105,13 @@ watch(activeKey, (newValue) => {
                                 </ClientOnly>
                             </ul>
                         </li>
-                        <li class="block bg-transparent rounded transition duration-200 hover:bg-deep-ocean-blue group">
+                        <!-- <li class="block bg-transparent rounded transition duration-200 hover:bg-deep-ocean-blue group">
                             <button
                                 class="text-base text-gray-300 flex flex-row gap-2 justify-start items-center p-3 transition duration-200 group-hover:text-tranquility">
                                 <Icon name="octicon:goal-24" class="text-xl p-0 m-0" />
                                 <span>Goals</span>
                             </button>
-                        </li>
+                        </li> -->
                         <li class="block bg-transparent rounded transition duration-200 hover:bg-deep-ocean-blue group">
                             <button
                                 class="text-base text-gray-300 flex flex-row gap-2 justify-start items-center p-3 transition duration-200 group-hover:text-tranquility">
