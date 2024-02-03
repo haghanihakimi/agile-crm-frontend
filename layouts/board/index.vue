@@ -2,7 +2,6 @@
 import { ref } from 'vue';
 import { Vue3Lottie } from 'vue3-lottie';
 import { usePopupsStore } from '~/server/store/popups';
-import { useProjectsStore } from '~/server/store/projects';
 import { useTasksStore } from '~/server/store/tasks';
 import Loading from "~/assets/images/loading.json";
 import createTask from '~/partials/create-task.vue';
@@ -23,7 +22,6 @@ import taskStatus from '~/partials/task-status.vue';
 
 const newTaskRow = ref(null);
 const popups = usePopupsStore();
-const projects = useProjectsStore();
 const tasks = useTasksStore();
 const dayjs = useDayjs();
 const router = useRouter();
@@ -45,22 +43,22 @@ const router = useRouter();
             <secondaryNavigationVue />
 
             <!-- Create project popup -->
-            <createProject />
+            <createProject v-if="popups.newProjectVis" />
 
             <!-- Create new task popup -->
-            <createTask />
+            <createTask v-if="popups.newTaskPopup" />
 
-            <createOrganization />
+            <createOrganization v-if="popups.newOrganizationVis" />
 
-            <editProject />
+            <editProject v-if="popups.editProjectPopup" />
 
-            <deleteProject />
+            <deleteProject v-if="popups.deleteProjectPopup" />
 
-            <deleteTask />
+            <deleteTask v-if="popups.deleteTaskPopup" />
 
             <editTask v-if="popups.editTaskPopup" />
 
-            <deleteCommentVue />
+            <deleteCommentVue v-if="popups.deleteCommentPopup.status" />
 
             <div class="w-full px-6 py-2 relative">
                 <div class="w-full flex flex-row gap-2 relative">
@@ -183,8 +181,8 @@ const router = useRouter();
                     </div>
 
                     <!-- Calendar -->
-                    <div class="w-full max-w-[512px] hidden 2xl:block">
-                        <calendar />
+                    <div v-if="tasks.todoTasks.length > 0" class="w-full max-w-[512px] hidden 2xl:block">
+                        <calendar :tasks="tasks.todoTasks" />
                     </div>
                 </div>
             </div>

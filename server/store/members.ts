@@ -33,17 +33,13 @@ export const useMemberstore = defineStore('members', {
         },
         inviteTo: 'Organization',
         loadingMembers: false,
+        pendingInvitations: [] as Array<any>,
+        messages: '',
+        outputCode: 0,
     }),
     actions: {
         getOrgMembers(members: any) {
             this.orgMembers = members
-
-            if (this.orgMembers && this.orgMembers.length > 0) {
-                members.map((member: any) => this.projectAssignees.options.push({
-                    value: member.email,
-                    label: `${member.firstname} ${member.lastname}`,
-                }))
-            }
         },
         getTaskMembers(val: any) {
             this.taskMembers = val?.members;
@@ -57,6 +53,22 @@ export const useMemberstore = defineStore('members', {
         },
         setLoadingMembers(status: boolean) {
             this.loadingMembers = status
+        },
+        getPendingInvitations(invitations: any) {
+            this.pendingInvitations = invitations
+        },
+        slicePendingInvitation(id: number) {
+            const index = this.pendingInvitations.findIndex((invitation) => invitation.id === id);
+            
+            if (index > -1) {
+                this.pendingInvitations.splice(index, 1);
+            }
+        },
+        setOutputCode(code: any) {
+            this.outputCode = code;
+        },
+        setMessages(message: any) {
+            this.messages = message;
         },
     },
 })

@@ -87,7 +87,7 @@ const saveEditedComment = (id, comment) => {
                 </p>
 
                 <!-- Comment-menu with 3 dots section -->
-                <commentsMenu :id="comment.comment_uuid" v-if="comment.user_id === profile.profile.id"
+                <commentsMenu :id="comment.comment_uuid" v-if="comment.user_id === profile.profile.user.id"
                     @toggleEdit="startEditing(i, comment.comment); emit('toggleEdit', 'good')"
                     :editableComment="isCommentEditable" />
             </div>

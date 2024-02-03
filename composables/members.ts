@@ -5,67 +5,97 @@ export default function useMembers() {
     const router = useRouter();
 
     async function getOrgMembers() {
-        interface Response {
-            code: any;
-            message: any;
-            orgMembers: any;
-        }
-        if (members.orgMembers.length <= 0) {
+        try {
+            interface Response {
+                code: any;
+                message: any;
+                orgMembers: any;
+            }
+            if (members.orgMembers.length > 0) {
+                return;
+            }
             members.setLoadingMembers(true);
-            const res = await $fetch('/api/members/get-orgs-members', {
-                method: "GET",
-                params: {
-                    org: router.currentRoute.value.params.org,
-                }
-            }).finally(() => {
-                members.setLoadingMembers(false)
-            });
+            const res = await useApiFetch(`/api/read/organization/${router.currentRoute.value.params.org}/members`)
+                .finally(() => { members.setLoadingMembers(false) });
             const { code, message, orgMembers } = res as Response;
-            if (code === 200) {
-                members.getOrgMembers(orgMembers);
+            members.getOrgMembers(orgMembers);
+        } catch (error: any) {
+            switch (error.response.status) {
+                case 500:
+                    alert(error.response._data.data.message);
+                    break;
+                case 403:
+                    alert(error.response._data.data.message);
+                    break;
+                case 404:
+                    alert(error.response._data.data.message);
+                    break;
+                default:
+                    break;
             }
         }
     }
 
     async function getProjectMembers() {
-        interface Response {
-            code: any;
-            message: any;
-            projectMembers: any;
-        }
-        if (members.projectMembers.length <= 0) {
-            const res = await $fetch('/api/members/get-projects-members', {
-                method: "GET",
-                params: {
-                    org: router.currentRoute.value.params.org,
-                    project: router.currentRoute.value.params.project
-                }
-            });
+        try {
+            interface Response {
+                code: any;
+                message: any;
+                projectMembers: any;
+            }
+            if (members.projectMembers.length > 0) {
+                return;
+            }
+            const res = await useApiFetch(`/api/read/project/${router.currentRoute.value.params.org}/${router.currentRoute.value.params.project}/members`);
 
             const { code, message, projectMembers } = res as Response;
             members.getProjectMembers(projectMembers);
+        } catch (error: any) {
+            switch (error.response.status) {
+                case 500:
+                    alert(error.response._data.data.message);
+                    break;
+                case 403:
+                    alert(error.response._data.data.message);
+                    break;
+                case 404:
+                    alert(error.response._data.data.message);
+                    break;
+                default:
+                    break;
+            }
         }
     }
 
     async function getTaskMembers(orgUuid: any, projectUuid: any, taskUuid: any) {
-        interface Response {
-            code: any;
-            message: any;
-            taskMembers: any;
-        }
-        if (members.taskMembers.length <= 0) {
-            const res = await $fetch('/api/members/get-projects-members', {
-                method: "GET",
-                params: {
-                    org: orgUuid,
-                    project: projectUuid,
-                    task: taskUuid,
-                }
-            });
+        try {
+            interface Response {
+                code: any;
+                message: any;
+                taskMembers: any;
+            }
+            if (members.taskMembers.length > 0) {
+                return;
+            }
+            const res = await useApiFetch(`/api/read/task/${orgUuid}/${projectUuid}/${taskUuid}/members`);
 
             const { code, message, taskMembers } = res as Response;
 
             members.getTaskMembers(res);
+        } catch (error: any) {
+            switch (error.response.status) {
+                case 500:
+                    alert(error.response._data.data.message);
+                    break;
+                case 403:
+                    alert(error.response._data.data.message);
+                    break;
+                case 404:
+                    alert(error.response._data.data.message);
+                    break;
+                default:
+                    break;
+            }
         }
     }
 

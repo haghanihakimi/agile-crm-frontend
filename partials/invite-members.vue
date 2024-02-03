@@ -8,7 +8,6 @@ import { useMemberstore } from '~/server/store/members';
 import useInvitations from '~/composables/invitations';
 
 const popups = usePopupsStore();
-const members = useMemberstore();
 const inviteMemberRef = ref(null);
 const { invitation } = useInvitations();
 
@@ -30,7 +29,7 @@ onClickOutside(inviteMemberRef,
 <template>
     <div v-if="popups.memberInvitation"
         class="w-full h-full fixed top-0 left-0 z-[9999999] bg-mystic-midnight bg-opacity-50 backdrop-blur flex justify-center items-center">
-        <form method="post" @submit.prevent="invitation(members.inviteTo, inviteesTags.value)"
+        <form method="post" @submit.prevent="invitation(inviteesTags.value)"
             class="w-full max-w-[512px] p-2 bg-light-ocean-blue rounded shadow-lg border border-gray-700"
             ref="inviteMemberRef">
             <h2 class="w-full text-base text-left font-bold tracking-wide text-gray-300 p-2">

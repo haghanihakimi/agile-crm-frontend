@@ -43,6 +43,9 @@ export default {
         'popupFade': 'popupFade 120ms linear 0ms 1 alternate',
         'fadeIn': 'fadeIn 150ms linear 0ms 1 alternate',
       },
+      backgroundImage: {
+        'hero': "url('assets/images/it-team.jpg')"
+      },
     },
   },
   plugins: [

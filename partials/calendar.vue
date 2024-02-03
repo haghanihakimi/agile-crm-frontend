@@ -3,18 +3,30 @@ import { ref } from 'vue';
 import { setupCalendar, Calendar, DatePicker } from 'v-calendar';
 import 'v-calendar/style.css';
 
-const attributes = ref([
-    {
-        key: 'today',
-        color: 'green',
-        dot: true,
-        dates: new Date(),
-        popover: {
-            label: 'description',
-            visibility: 'click'
-        }
+const props = defineProps({
+    tasks: {
+        type: Array,
     },
-]);
+})
+
+const attributes = ref([]);
+const dayjs = useDayjs();
+
+const formattedTasks = ref([]);
+
+onMounted(() => {
+    props.tasks.forEach((task) => {
+        attributes.value.push({
+            color: 'green',
+            dot: true,
+            dates: new Date(dayjs(task.due_date).format('YYYY'), dayjs(task.due_date).format('MM') - 1, dayjs(task.due_date).format('DD')),
+            popover: {
+                label: task.description,
+                visibility: 'click'
+            }
+        })
+    })
+});
 
 </script>
 

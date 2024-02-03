@@ -11,6 +11,7 @@ import useOrganizations from '~/composables/organizations';
 import useProjects from '~/composables/projects';
 import useMembers from '~/composables/members';
 import useTasks from '~/composables/tasks';
+import useInvitations from '~/composables/invitations';
 
 const dateNow = new Date();
 const dayjs = useDayjs();
@@ -28,9 +29,12 @@ const { getOrganizations, getCurrentOrganization } = useOrganizations();
 const { getProjects, currentProject, getTotalProjects } = useProjects();
 const { getOrgMembers, getProjectMembers } = useMembers();
 const { getTasks, getTotalTasks, getCompletedTasks, getOverdueTasks } = useTasks();
+const { getInvitations } = useInvitations();
 
 onMounted(async () => {
-    await getOrganizations();
+    await getOrganizations().then(() => {
+        getInvitations();
+    });
     await getCurrentOrganization();
     await getProjects();
     await currentProject();
@@ -140,8 +144,7 @@ onClickOutside(createNewMenuRef, () => {
                 <!-- Profile image & profile menu container -->
                 <div class="w-full relative">
                     <BtnGeneral @click="profileMenuVis = !profileMenuVis" :type="'button'" :px="'px-0'" :py="'py-0'">
-                        <NuxtImg src="https://utfs.io/f/0b9eff67-18f7-4e90-9ffe-e91563fbad57-q3gypg.jpg"
-                            class="w-8 h-8 object-cover rounded-full" />
+                        <NuxtImg :src="profiles.profile.user.image" class="w-8 h-8 object-cover rounded-full" />
                     </BtnGeneral>
 
                     <div ref="profileMenuRef" v-if="profileMenuVis"
@@ -149,14 +152,8 @@ onClickOutside(createNewMenuRef, () => {
                         <!-- profile image and name -->
                         <NuxtLink to="/settings"
                             class="w-full p-2 flex flex-row gap-2 items-center justify-start rounded-tl rounded-tr text-gray-200 font-medium text-md tracking-wide border-b border-gray-700 transition duration-200 hover:bg-emerald-splash">
-                            <ClientOnly>
-                                <a-avatar style="background-color: transparent;"
-                                    src="https://utfs.io/f/0b9eff67-18f7-4e90-9ffe-e91563fbad57-q3gypg.jpg">
-                                    <template #icon>
-                                        <UserOutlined />
-                                    </template>
-                                </a-avatar>
-                            </ClientOnly>
+                            <NuxtImg :src="profiles.profile.user.image"
+                                class="w-8 h-8 rounded-full shrink-0 object-cover" />
                             <span>
                                 {{ `${profiles.profile.user.firstname} ${profiles.profile.user.lastname}` }}
                             </span>
@@ -165,28 +162,33 @@ onClickOutside(createNewMenuRef, () => {
                         <div class="w-full relative border-b border-gray-700">
                             <span class="px-4 py-2 text-sm text-gray-400 block">Organizations</span>
                             <div class="w-full relative" v-if="organizations.organizations.length > 0">
-                                <NuxtLink v-for="org in organizations.organizations" :key="org.id" target="_blank"
-                                    :to="`/board/${org.org_uuid}`"
+                                <a v-for="org in organizations.organizations" :key="org.id" target="_self"
+                                    :href="`/board/${org.org_uuid}`"
                                     class="w-full py-2 px-4 flex flex-row gap-2 items-center justify-between text-gray-200 font-base text-md tracking-wide rounded-none transition duration-200 hover:bg-emerald-splash">
                                     <span>
                                         {{ org.name }}
                                     </span>
                                     <Icon v-if="org.org_uuid === router.currentRoute.value.params.org"
                                         name="heroicons:check-solid" class="text-xl" />
-                                </NuxtLink>
+                                </a>
                             </div>
                         </div>
 
                         <div class="w-full relative border-b border-gray-700">
-                            <BtnGeneral :type="'button'" :px="'px-4'" :py="'py-2'"
-                                @click="popups.toggleOrganizationPopup(true)"
-                                :display="'flex flex-row justify-start items-center gap-2'" :radius="'rounded-none'"
-                                class="transition duration-200 hover:bg-emerald-splash">
+                            <button type="ghost" @click="popups.toggleOrganizationPopup(true)"
+                                class="w-full py-2 px-4 flex flex-row gap-2 items-center justify-start text-gray-200 font-medium text-base tracking-wide transition duration-200 hover:bg-emerald-splash">
                                 <Icon name="heroicons:plus-20-solid" class="text-xl" />
                                 <span>
                                     New Organization
                                 </span>
-                            </BtnGeneral>
+                            </button>
+                            <NuxtLink to="/settings"
+                                class="w-full py-2 px-4 flex flex-row gap-2 items-center justify-start text-gray-200 font-medium text-base tracking-wide transition duration-200 hover:bg-emerald-splash">
+                                <Icon name="eos-icons:admin-outlined" />
+                                <span>
+                                    Admin Console
+                                </span>
+                            </NuxtLink>
                             <NuxtLink to="/settings"
                                 class="w-full py-2 px-4 flex flex-row gap-2 items-center justify-start text-gray-200 font-medium text-base tracking-wide transition duration-200 hover:bg-emerald-splash">
                                 <Icon name="heroicons:cog-8-tooth" class="text-xl" />

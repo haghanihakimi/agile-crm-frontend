@@ -55,12 +55,20 @@ watch(activeKey, (newValue) => {
                 </a-collapse-panel>
                 <a-collapse-panel key="2" header="Organization">
                     <ul>
+                        <li @click="popups.toggleOrganizationPopup(true)"
+                            class="block cursor-pointer bg-transparent rounded transition duration-200 hover:bg-deep-ocean-blue group">
+                            <p
+                                class="text-base text-gray-300 flex flex-row gap-2 justify-start items-center p-3 transition duration-200 group-hover:text-tranquility">
+                                <Icon name="icon-park-outline:incoming" class="text-xl p-0 m-0 -rotate-90" />
+                                <span>Requests</span>
+                            </p>
+                        </li>
                         <li class="block bg-transparent rounded transition duration-200 hover:bg-deep-ocean-blue group">
-                            <NuxtLink to="#"
+                            <button
                                 class="text-base text-gray-300 flex flex-row gap-2 justify-start items-center p-3 transition duration-200 group-hover:text-tranquility">
                                 <Icon name="octicon:project-24" class="text-xl p-0 m-0" />
                                 <span>Projects</span>
-                            </NuxtLink>
+                            </button>
                             <ul
                                 v-if="projects.projects && projects.projects.length > 0 && projects.activeProject && !projects.loadingProjects">
                                 <li class="px-6 py-0 block bg-transparent" v-for="(project, index) in projects.projects"
@@ -98,18 +106,18 @@ watch(activeKey, (newValue) => {
                             </ul>
                         </li>
                         <li class="block bg-transparent rounded transition duration-200 hover:bg-deep-ocean-blue group">
-                            <NuxtLink to="#"
+                            <button
                                 class="text-base text-gray-300 flex flex-row gap-2 justify-start items-center p-3 transition duration-200 group-hover:text-tranquility">
                                 <Icon name="octicon:goal-24" class="text-xl p-0 m-0" />
                                 <span>Goals</span>
-                            </NuxtLink>
+                            </button>
                         </li>
                         <li class="block bg-transparent rounded transition duration-200 hover:bg-deep-ocean-blue group">
-                            <NuxtLink to="#"
+                            <button
                                 class="text-base text-gray-300 flex flex-row gap-2 justify-start items-center p-3 transition duration-200 group-hover:text-tranquility">
                                 <Icon name="heroicons:user-group" class="text-xl p-0 m-0" />
                                 <span>Members</span>
-                            </NuxtLink>
+                            </button>
                             <ul v-if="!members.loadingMembers">
                                 <li class="px-6 block bg-transparent" v-for="(member, index) in members.orgMembers"
                                     :key="index">

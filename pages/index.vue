@@ -29,39 +29,35 @@ const loginForm = ref({
 </script>
 
 <template>
-    <main class="w-full relative" v-if="!profiles.auth">
+    <main class="w-full h-screen bg-slate-100 relative overflow-auto" v-if="!profiles.auth">
         <NuxtLoadingIndicator />
-        <guestNavbar />
-
-        <!-- Login form -->
-        <div class="w-full relative py-12 px-4">
-            <form action="POST" class="w-full max-w-sm flex flex-col gap-4 mx-auto" @submit.prevent="sginIn(loginForm)">
-                <input type="email" placeholder="Email Address" v-model="loginForm.email"
-                    class="w-full min-h-[38px] rounded text-base tracking-wider font-bold text-gray-300 bg-deep-ocean-blue border border-gray-700 shadow-md ring-4 ring-transparent transition duration-200 focus:ring-1 focus:ring-tranquility focus:outline-none" />
-                <input type="password" placeholder="Password" v-model="loginForm.password" autocomplete="false"
-                    class="w-full min-h-[38px] rounded text-base tracking-wider font-bold text-gray-300 bg-deep-ocean-blue border border-gray-700 shadow-md ring-4 ring-transparent transition duration-200 focus:ring-1 focus:ring-tranquility focus:outline-none" />
-                <a-button type="ghost" htmlType="submit"
-                    class="w-full rounded py-5 px-8 text-md text-mystic-midnight font-semibold tracking-wide bg-emerald-splash flex justify-center items-center">
-                    Login
-                </a-button>
-            </form>
-            <div class="w-full max-w-sm relative mx-auto py-4 px-2 text-red-500" v-if="profiles.messages && profiles.messages.length > 0">
-                <ul v-if="Array.isArray(profiles.messages)">
-                    <li v-for="message in profiles.messages" :key="message">
-                        &cross;&nbsp;{{ message }}
-                    </li>
-                </ul>
-                <p v-else>
-                    &cross;&nbsp;{{ profiles.messages }}
-                </p>
+        <section class="w-full h-full relative">
+            <guestNavbar />
+            <div class="w-full h-full absolute top-0 left-0 bg-hero bg-no-repeat bg-cover bg-center bg-fixed z-0">
+                <div class="w-full h-full bg-slate-900 bg-opacity-75 relative flex justify-start items-center">
+                    <div class="mx-auto xl:-translate-x-72 translate-x-0  mt-24 flex flex-col gap-4 select-none">
+                        <h2 class="text-5xl text-gray-200 font-bold tracking-wide capitalize">
+                            Revolutionize your <span class="uppercase text-tranquility">CRM</span>
+                        </h2>
+                        <p class="text-2xl font-normal text-gray-200">
+                            Take your team management to the next level
+                        </p>
+                        <NuxtLink to="/login"
+                            class="bg-gray-200 relative rounded text-slate-900 text-lg px-4 py-3 w-fit overflow-hidden transition duration-500 group hover:text-white">
+                            <span class="relative z-10">Get Started</span>
+                            <span
+                                class="w-full h-full rounded absolute top-0 left-0 z-0 translate-y-16 bg-tranquility transition duration-500 group-hover:translate-y-0">&nbsp;</span>
+                        </NuxtLink>
+                    </div>
+                </div>
             </div>
-        </div>
+        </section>
     </main>
 </template>
 
 <style lang="postcss">
 html,
 body {
-    @apply bg-mystic-midnight h-screen overflow-hidden;
+    @apply bg-mystic-midnight h-full;
 }
 </style>

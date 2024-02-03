@@ -22,17 +22,6 @@ definePageMeta({
 });
 
 const profiles = useProfilesStore();
-const orgs = useOrgsStore();
-const projects = useProjectsStore();
-
-const { switchProject } = useProjects();
-
-const router = useRouter();
-onMounted(async () => {
-    // if (router.currentRoute.value.params.project !== projects.activeProject.project_uuid) {
-    //     switchProject(router.currentRoute.value.params.project);
-    // }
-})
 </script>
 
 <template>

@@ -6,126 +6,163 @@ import { useUploadFileStore } from "~/server/store/uploadFile";
 
 export default function useTasks() {
     const tasks = useTasksStore();
-    const members = useMemberstore();
     const router = useRouter();
     const dateTime = useDateTimeStore();
     const popups = usePopupsStore();
     const uploadFile = useUploadFileStore();
 
     async function getTasks() {
-        interface Response {
-            code: any;
-            message: any;
-            todoTasks: any;
-        }
-        if (tasks.todoTasks.length <= 0) {
+        try {
+            interface Response {
+                code: any;
+                message: any;
+                todoTasks: any;
+            }
+            if (router.currentRoute.value.params.org === undefined || router.currentRoute.value.params.project === undefined || tasks.todoTasks.length > 0) {
+                return;
+            }
             tasks.toggleLoadingTodoTasks(true);
-            const res = await $fetch('/api/tasks/get-tasks', {
-                method: "GET",
-                params: {
-                    org: router.currentRoute.value.params.org,
-                    project: router.currentRoute.value.params.project,
-                }
-            }).finally(() => {
-                tasks.toggleLoadingTodoTasks(false);
-            });
+            const res = await useApiFetch(`/api/tasks/read/tasks/${router.currentRoute.value.params.org}/${router.currentRoute.value.params.project}`)
+                .finally(() => {
+                    tasks.toggleLoadingTodoTasks(false);
+                });
 
             const { code, message, todoTasks } = res as Response;
 
-            if (code === 200) {
-                tasks.getTodoTasks(todoTasks);
+            tasks.getTodoTasks(todoTasks);
+        } catch (error: any) {
+            switch (error.response.status) {
+                case 500:
+                    alert(error.response._data.data.message);
+                    break;
+                case 403:
+                    alert(error.response._data.data.message);
+                    break;
+                case 404:
+                    alert(error.response._data.data.message);
+                    break;
+                default:
+                    break;
             }
         }
     }
 
     async function getTotalTasks() {
-        interface Response {
-            code: any;
-            message: any;
-            totalTasks: any;
-        }
-        if (tasks.totalTasks <= 0) {
-            const res = await $fetch('/api/tasks/total-tasks', {
-                method: "GET",
-                params: {
-                    org: router.currentRoute.value.params.org,
-                }
-            });
+        try {
+            interface Response {
+                code: any;
+                message: any;
+                totalTasks: any;
+            }
+            if (router.currentRoute.value.params.org === undefined || router.currentRoute.value.name !== "dashboard-org") {
+                return;
+            }
+            const res = await useApiFetch(`/api/tasks/count/tasks/${router.currentRoute.value.params.org}`);
 
             const { code, message, totalTasks } = res as Response;
 
             if (code === 200) {
                 tasks.getTotalTasks(totalTasks);
             }
+        } catch (error: any) {
+            switch (error.response.status) {
+                case 500:
+                    alert(error.response._data.data.message);
+                    break;
+                case 403:
+                    alert(error.response._data.data.message);
+                    break;
+                case 404:
+                    alert(error.response._data.data.message);
+                    break;
+                default:
+                    break;
+            }
         }
     }
 
     async function getCompletedTasks() {
-        interface Response {
-            code: any;
-            message: any;
-            completedTasks: any;
-        }
-        if (tasks.completedTasks <= 0) {
-            const res = await $fetch('/api/tasks/completed-tasks', {
-                method: "GET",
-                params: {
-                    org: router.currentRoute.value.params.org,
-                }
-            });
+        try {
+            interface Response {
+                code: any;
+                message: any;
+                completedTasks: any;
+            }
+            if (router.currentRoute.value.params.org === undefined || router.currentRoute.value.name !== "dashboard-org") {
+                return;
+            }
+            const res = await useApiFetch(`/api/completed/tasks/${router.currentRoute.value.params.org}`);
 
             const { code, message, completedTasks } = res as Response;
 
             if (code === 200) {
                 tasks.getCompletedTasks(completedTasks);
             }
-        }
-    }
-
-    async function getOverdueTasks() {
-        interface Response {
-            code: any;
-            message: any;
-            overdueTasks: any;
-        }
-        if (tasks.overdueTasks <= 0) {
-            const res = await $fetch('/api/tasks/overdue-tasks', {
-                method: "GET",
-                params: {
-                    org: router.currentRoute.value.params.org,
-                }
-            });
-
-            const { code, message, overdueTasks } = res as Response;
-
-            if (code === 200) {
-                tasks.getOverdueTasks(overdueTasks);
+        } catch (error: any) {
+            switch (error.response.status) {
+                case 500:
+                    alert(error.response._data.data.message);
+                    break;
+                case 403:
+                    alert(error.response._data.data.message);
+                    break;
+                case 404:
+                    alert(error.response._data.data.message);
+                    break;
+                default:
+                    break;
             }
         }
     }
 
-    async function createNewTask(input: any) {
+    async function getOverdueTasks() {
+        try {
+            interface Response {
+                code: any;
+                message: any;
+                overdueTasks: any;
+            }
+            if (router.currentRoute.value.params.org === undefined || router.currentRoute.value.name !== "dashboard-org") {
+                return;
+            }
+            const res = await useApiFetch(`/api/overdue/tasks/${router.currentRoute.value.params.org}`);
+
+            const { code, message, overdueTasks } = res as Response;
+
+            tasks.getOverdueTasks(overdueTasks);
+        } catch (error: any) {
+            switch (error.response.status) {
+                case 500:
+                    alert(error.response._data.data.message);
+                    break;
+                case 403:
+                    alert(error.response._data.data.message);
+                    break;
+                case 404:
+                    alert(error.response._data.data.message);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    async function createNewTask(input: any, assignees: any) {
         interface Response {
             code: any;
             message: string;
             newTask: any;
         }
-        const res = await $fetch('/api/tasks/create-task', {
-            method: 'POST',
-            headers: {
-                Accept: "application/json",
-            },
-            body: {
-                name: input.name,
-                taskAssignees: members.projectAssignees.value,
-                description: input.description,
-                priority: tasks.priorities,
-                status: tasks.status,
-                privacy: input.privacy,
-                dueDate: (dateTime.dateTime instanceof Date) ? dateTime.dateTime.toISOString() : dateTime.dateTime,
-                org: router.currentRoute.value.params.org,
-                project: router.currentRoute.value.params.project,
-            }
+        const res = await useApiFetch(`/api/task/create/${router.currentRoute.value.params.org}/${router.currentRoute.value.params.project}`, "POST", {
+            name: input.name,
+            taskAssignees: assignees.value,
+            description: input.description,
+            priority: tasks.priorities,
+            status: tasks.status,
+            privacy: input.privacy,
+            dueDate: (dateTime.dateTime instanceof Date) ? dateTime.dateTime.toISOString() : dateTime.dateTime,
+            org: router.currentRoute.value.params.org,
+            project: router.currentRoute.value.params.project,
         });
         const { code, message, newTask } = res as Response;
 
@@ -167,24 +204,18 @@ export default function useTasks() {
 
         tasks.toggleUpdatingTask(true);
 
-        const res = await $fetch('/api/tasks/update-task', {
-            method: 'PATCH',
-            headers: {
-                Accept: "application/json",
-            },
-            body: {
-                title: tasks.selectedTask.title,
-                task_assignees: assignees,
-                description: tasks.selectedTask.description,
-                priority: tasks.priorities,
-                status: tasks.status,
-                private: tasks.selectedTask.private,
-                files: tasks.selectedTask.files,
-                due_date: (dateTime.dateTime instanceof Date) ? dateTime.dateTime.toISOString() : dateTime.dateTime,
-                org: router.currentRoute.value.params.org,
-                project: router.currentRoute.value.params.project,
-                task: tasks.selectedTask.task_uuid,
-            }
+        const res = await useApiFetch(`/api/task/update/${router.currentRoute.value.params.org}/${router.currentRoute.value.params.project}/${tasks.selectedTask.task_uuid}`, "PATCH", {
+            title: tasks.selectedTask.title,
+            task_assignees: assignees,
+            description: tasks.selectedTask.description,
+            priority: tasks.priorities,
+            status: tasks.status,
+            private: tasks.selectedTask.private,
+            files: tasks.selectedTask.files,
+            due_date: (dateTime.dateTime instanceof Date) ? dateTime.dateTime.toISOString() : dateTime.dateTime,
+            org: router.currentRoute.value.params.org,
+            project: router.currentRoute.value.params.project,
+            task: tasks.selectedTask.task_uuid,
         }).finally(() => { tasks.toggleUpdatingTask(false) });
 
         const { code, message, task } = res as Response;
@@ -232,23 +263,18 @@ export default function useTasks() {
             }
 
             let formData = new FormData();
+            const config = useRuntimeConfig()
 
             for (let i = 0; i < uploadFile.newFiles.length; i++) {
                 formData.append('newFiles[]', uploadFile.newFiles[i]);
             }
             tasks.toggleUploadingFiles(true);
 
-            const res = await $fetch(`http://localhost:443/api/task/upload/files/${router.currentRoute.value.params.org}/${router.currentRoute.value.params.project}/${tasks.selectedTask.task_uuid}`, {
-                method: 'POST',
-                headers: {
-                    Accept: "application/json",
-                    Authorization: `Bearer ${useCookie('auth').value}`,
-                    'X-CSRF-TOKEN': useCookie('XSRF-TOKEN').value || '',
-                },
-                body: formData
-            }).finally(() => {
-                tasks.toggleUploadingFiles(false);
-            });
+            const res = await useApiFetch(`/api/task/upload/files/${router.currentRoute.value.params.org}/${router.currentRoute.value.params.project}/${tasks.selectedTask.task_uuid}`,
+                "POST", formData)
+                .finally(() => {
+                    tasks.toggleUploadingFiles(false);
+                });
 
             const { code, message, task } = res as Response;
 
@@ -265,17 +291,7 @@ export default function useTasks() {
             message: string;
         }
         tasks.toggleDeletingTask(true);
-        const res = await $fetch('/api/tasks/delete-task', {
-            method: 'DELETE',
-            headers: {
-                Accept: "application/json",
-            },
-            body: {
-                org: router.currentRoute.value.params.org,
-                project: router.currentRoute.value.params.project,
-                task: tasks.selectedTask.task_uuid
-            }
-        }).finally(() => { tasks.toggleDeletingTask(false) });
+        const res = await useApiFetch(`/api/task/delete/${router.currentRoute.value.params.org}/${router.currentRoute.value.params.project}/${tasks.selectedTask.task_uuid}`, "DELETE").finally(() => { tasks.toggleDeletingTask(false) });
         const { code, message } = res as Response;
 
         switch (code) {

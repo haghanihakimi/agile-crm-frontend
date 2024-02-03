@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from 'vue';
+import { useRafFn } from '@vueuse/core'
 import createOrganization from '~/partials/create-organization.vue';
 import createProject from '~/partials/create-project.vue';
 import inviteMembers from '~/partials/invite-members.vue';
@@ -11,11 +12,13 @@ import editProfile from '~/partials/edit-profile.vue';
 import deleteProfile from '~/partials/delete-profile.vue';
 import { useProfilesStore } from '~/server/store/profiles';
 import { usePopupsStore } from '~/server/store/popups';
+import useUsers from '~/composables/users';
 
 const profiles = useProfilesStore();
 const popups = usePopupsStore();
 const dayjs = useDayjs();
-
+const { updateProfileImage } = useUsers();
+const currentTime = ref(dayjs().format('hh:mma'));
 const profileImage = ref([]);
 
 const handleFileChange = async (event) => {
@@ -27,6 +30,7 @@ const handleFileChange = async (event) => {
         const blobUrl = URL.createObjectURL(blob);
         const imgElement = document.getElementById('current_profile_image');
         imgElement.src = blobUrl;
+        imgElement.srcset = blobUrl;
     }
 };
 
@@ -34,16 +38,25 @@ const cancelImageUpload = () => {
     profileImage.value = [];
     const imgElement = document.getElementById('current_profile_image');
     imgElement.src = profiles.profile.user.image;
+    imgElement.srcset = profiles.profile.user.image;
 }
 
 const saveProfileImage = () => {
-    // 
+    updateProfileImage(profileImage.value).finally(() => {
+        if (profiles.outputCode === 200) {
+            profileImage.value = []
+        }
+    });
 }
+
+useRafFn(() => {
+    currentTime.value = dayjs().format('hh:mma')
+})
 
 </script>
 
 <template>
-    <main class="w-full h-screen flex flex-row gap-0 flex-nowrap relative overflow-hidden">
+    <main id="profile-settings" class="w-full h-screen flex flex-row gap-0 flex-nowrap relative overflow-hidden">
         <!-- Sidebar container -->
         <ClientOnly>
             <sidebarVue />
@@ -72,28 +85,28 @@ const saveProfileImage = () => {
                 <!-- profile image and name -->
                 <div class="w-full flex flex-row items-center justify-start">
                     <!-- profile image -->
-                    <div class="w-fit h-fit relative">
+                    <form method="PATCH" @submit.prevent="saveProfileImage()" class="w-fit h-fit relative">
                         <div class="w-32 h-32 rounded-full shadow-md relative group shrink-0">
-                            <img :src="profiles.profile.user.image"
-                                class="w-32 h-32 rounded-full object-cover" id="current_profile_image" />
+                            <NuxtImg :src="profiles.profile.user.image" class="w-32 h-32 rounded-full object-cover"
+                                id="current_profile_image" />
                             <label for="profile_image"
                                 class="bg-black bg-opacity-75 absolute w-full h-full top-0 left-0 z-10 rounded-full flex justify-center items-center opacity-0 transition duration-200 cursor-pointer group-hover:opacity-100">
-                                <input type="file" @change="handleFileChange" id="profile_image" 
-                                class="opacity-0 hidden invisible"
-                                accept="image/jpg, image/jpeg, image/png" />
+                                <input type="file" @change="handleFileChange" id="profile_image"
+                                    class="opacity-0 hidden invisible" accept="image/jpg, image/jpeg, image/png" />
                                 <Icon name="material-symbols:add-a-photo-outline" class="text-2xl text-gray-300" />
                             </label>
                         </div>
                         <div class="w-full relative flex flex-row" v-if="profileImage.length > 0">
-                            <a-button class="w-fit bg-mystic-midnight text-white text-sm border-none" 
-                            @click="cancelImageUpload()">
+                            <a-button class="w-fit bg-mystic-midnight text-white text-sm border-none"
+                                @click="cancelImageUpload()">
                                 Cancel
                             </a-button>
-                            <a-button class="w-fit bg-mystic-midnight text-white text-sm border-none">
+                            <a-button type="ghost" htmlType="submit"
+                                class="w-fit bg-mystic-midnight text-white text-sm border-none">
                                 Save
                             </a-button>
                         </div>
-                    </div>
+                    </form>
 
                     <!-- profile name -->
                     <div class="w-full flex flex-col relative p-6">
@@ -104,7 +117,7 @@ const saveProfileImage = () => {
                             <span>
                                 <Icon name="material-symbols-light:nest-clock-farsight-analog-outline-rounded"
                                     class="text-xl text-gray-400" />
-                                {{dayjs().format('hh:mma')}} local time
+                                {{ currentTime }} local time
                             </span>
                         </p>
                     </div>
@@ -168,9 +181,8 @@ const saveProfileImage = () => {
                             <label class="text-base font-semibold flex flex-col gap-2 text-gray-300">
                                 <span class="text-gray-400">Projects</span>
                                 <span class="font-medium" v-if="profiles.profile.projects > 0">
-                                    {{ `${profiles.profile.projects} ${profiles.profile.projects > 10 ? ' projects assigned to you'
-                                        :
-                                        ' project assigned to you.'}` }}
+                                    {{ `${profiles.profile.projects} ${profiles.profile.projects > 10
+                                        ? ' projects assigned to you' : ' project assigned to you.'}` }}
                                 </span>
                                 <span class="font-medium" v-else>
                                     No project assigned to you.
@@ -182,7 +194,8 @@ const saveProfileImage = () => {
                                 <span class="font-medium" v-if="profiles.profile.tasks > 0">
                                     {{ `${profiles.profile.tasks} ${profiles.profile.tasks > 10 ? ' tasks assigned to you.'
                                         :
-                                        ' task assigned to you.'}` }}
+                                        ' task assigned to you.'
+                                        } ` }}
                                 </span>
                                 <span class="font-medium" v-else>
                                     No task assigned to you.

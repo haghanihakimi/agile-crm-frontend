@@ -10,138 +10,113 @@ export default function useComments() {
     const popups = usePopupsStore();
 
     async function postComment() {
-        interface Response {
-            code: any;
-            message: string;
-            newComment: string;
-        }
-        tasks.togglePostingComment(true);
-        const res = await $fetch('/api/comments/post-comment', {
-            method: 'POST',
-            headers: {
-                Accept: "application/json",
-            },
-            body: {
-                org: router.currentRoute.value.params.org,
-                project: router.currentRoute.value.params.project,
-                task: tasks.selectedTask.task_uuid,
-                comment: tasks.newComment,
+        try {
+            interface Response {
+                code: any;
+                message: string;
+                newComment: string;
             }
-        }).finally(() => {
-            tasks.togglePostingComment(false);
-        });
+            tasks.togglePostingComment(true);
+            const res = await useApiFetch(`/api/comment/task/post/comment/${router.currentRoute.value.params.org}/${router.currentRoute.value.params.project}/${tasks.selectedTask.task_uuid}`,
+                "POST", {
+                comment: tasks.newComment,
+            }).finally(() => {
+                tasks.togglePostingComment(false);
+            });
 
-        const { code, message, newComment } = res as Response;
+            const { code, message, newComment } = res as Response;
 
-        switch (code) {
-            case 200:
-                console.log(newComment);
-                tasks.postNewComment(newComment);
-                break;
-            case 404:
-                popups.toggleDeleteCommentPopup(false, '');
-                break;
-            case 500:
-                popups.toggleDeleteCommentPopup(false, '');
-                break;
-            case 403:
-                popups.toggleDeleteCommentPopup(false, '');
-                break;
-            case 422:
-                popups.toggleDeleteCommentPopup(false, '');
-                break;
-            default:
-                popups.toggleDeleteCommentPopup(false, '');
-                break;
+            tasks.postNewComment(newComment);
+        } catch (error: any) {
+            switch (error.response.status) {
+                case 404:
+                    popups.toggleDeleteCommentPopup(false, '');
+                    break;
+                case 500:
+                    popups.toggleDeleteCommentPopup(false, '');
+                    break;
+                case 403:
+                    popups.toggleDeleteCommentPopup(false, '');
+                    break;
+                case 422:
+                    popups.toggleDeleteCommentPopup(false, '');
+                    break;
+                default:
+                    popups.toggleDeleteCommentPopup(false, '');
+                    break;
+            }
         }
     }
 
     async function deleteComment(input: any) {
-        interface Response {
-            code: any;
-            message: string;
-        }
-        tasks.toggleDeletingComment(true);
-        const res = await $fetch('/api/comments/delete-comment', {
-            method: 'DELETE',
-            headers: {
-                Accept: "application/json",
-            },
-            body: {
-                org: router.currentRoute.value.params.org,
-                project: router.currentRoute.value.params.project,
-                task: tasks.selectedTask.task_uuid,
-                comment: input
+        try {
+            interface Response {
+                code: any;
+                message: string;
             }
-        }).finally(() => {
-            tasks.toggleDeletingComment(false);
-        });
-        const { code, message } = res as Response;
-
-        switch (code) {
-            case 200:
-                popups.toggleDeleteCommentPopup(false, '');
-                tasks.deleteComment(input);
-                break;
-            case 404:
-                popups.toggleDeleteCommentPopup(false, '');
-                break;
-            case 500:
-                popups.toggleDeleteCommentPopup(false, '');
-                break;
-            case 403:
-                popups.toggleDeleteCommentPopup(false, '');
-                break;
-            case 422:
-                popups.toggleDeleteCommentPopup(false, '');
-                break;
-            default:
-                popups.toggleDeleteCommentPopup(false, '');
-                break;
+            tasks.toggleDeletingComment(true);
+            const res = await useApiFetch(`/api/comment/task/delete/${router.currentRoute.value.params.org}/${router.currentRoute.value.params.project}/${tasks.selectedTask.task_uuid}/${input}`,
+                "DELETE").finally(() => {
+                    tasks.toggleDeletingComment(false);
+                });
+            const { code, message } = res as Response;
+            popups.toggleDeleteCommentPopup(false, '');
+            tasks.deleteComment(input);
+        } catch (error: any) {
+            switch (error.response.status) {
+                case 404:
+                    popups.toggleDeleteCommentPopup(false, '');
+                    break;
+                case 500:
+                    popups.toggleDeleteCommentPopup(false, '');
+                    break;
+                case 403:
+                    popups.toggleDeleteCommentPopup(false, '');
+                    break;
+                case 422:
+                    popups.toggleDeleteCommentPopup(false, '');
+                    break;
+                default:
+                    popups.toggleDeleteCommentPopup(false, '');
+                    break;
+            }
         }
     }
 
     async function saveComment(id: string, commentInput: string,) {
-        interface Response {
-            code: any;
-            message: string;
-        }
-        const res = await $fetch('/api/comments/edit-comment', {
-            method: 'POST',
-            headers: {
-                Accept: "application/json",
-            },
-            body: {
-                org: router.currentRoute.value.params.org,
-                project: router.currentRoute.value.params.project,
-                task: tasks.selectedTask.task_uuid,
-                commentId: id,
-                comment: commentInput,
+        try {
+            interface Response {
+                code: any;
+                message: string;
             }
-        });
+            const res = await useApiFetch(`/api/comment/task/save/comment/${router.currentRoute.value.params.org}/${router.currentRoute.value.params.project}/${tasks.selectedTask.task_uuid}/${id}`,
+                "POST", {
+                comment: commentInput,
+            });
 
-        const { code, message } = res as Response;
+            const { code, message } = res as Response;
 
-        switch (code) {
-            case 200:
-                popups.toggleDeleteCommentPopup(false, '');
-                tasks.editComment(id, commentInput);
-                break;
-            case 404:
-                popups.toggleDeleteCommentPopup(false, '');
-                break;
-            case 500:
-                popups.toggleDeleteCommentPopup(false, '');
-                break;
-            case 403:
-                popups.toggleDeleteCommentPopup(false, '');
-                break;
-            case 422:
-                popups.toggleDeleteCommentPopup(false, '');
-                break;
-            default:
-                popups.toggleDeleteCommentPopup(false, '');
-                break;
+            popups.toggleDeleteCommentPopup(false, '');
+            tasks.editComment(id, commentInput);
+
+        } catch (error: any) {
+            switch (error.response.status) {
+                case 404:
+                    popups.toggleDeleteCommentPopup(false, '');
+                    break;
+                case 500:
+                    popups.toggleDeleteCommentPopup(false, '');
+                    break;
+                case 403:
+                    popups.toggleDeleteCommentPopup(false, '');
+                    break;
+                case 422:
+                    popups.toggleDeleteCommentPopup(false, '');
+                    break;
+                default:
+                    popups.toggleDeleteCommentPopup(false, '');
+                    break;
+            }
         }
     }
 

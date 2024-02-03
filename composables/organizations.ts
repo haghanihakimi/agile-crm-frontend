@@ -24,18 +24,13 @@ export default function useOrganizations() {
         }
 
         const fetchOrganization = async (endpoint: string) => {
-            const res = await $fetch(endpoint, {
-                method: "GET",
-                params: {
-                    org: router.currentRoute.value.params.org,
-                },
-            }) as Response;
+            const res = await useApiFetch(endpoint) as Response;
 
             return res;
         };
 
         const handleOrganizationResponse = async (res: Response) => {
-            const { code, organization } = await res;
+            const { code, organization } = res;
             switch (code) {
                 case 200:
                     orgs.currentOrganization(organization);
@@ -46,111 +41,87 @@ export default function useOrganizations() {
                     break;
                 case 404:
                     window.location.href = '/organization/new/create';
-                    // Redirect users to "create organization & project" page instead!
                     break;
                 default:
                     break;
             }
         };
 
-        const firstOrganizationRes = await fetchOrganization('/api/organizations/current-organization');
+        const firstOrganizationRes = await fetchOrganization(`/api/organization/read/${router.currentRoute.value.params.org}`);
         if (firstOrganizationRes.code === 200) {
             handleOrganizationResponse(firstOrganizationRes);
         } else {
-            const secondOrganizationRes = await fetchOrganization('/api/organizations/first-organization');
+            const secondOrganizationRes = await fetchOrganization('/api/active/organization');
             handleOrganizationResponse(secondOrganizationRes);
         }
     }
 
     async function getOrganizations() {
-        interface Response {
-            code: any;
-            message: any;
-            organizations: any;
-        }
-        if (orgs.organizations.length <= 0) {
-            const res = await $fetch('/api/organizations/all-organizations');
-            const { code, message, organizations } = res as Response;
+        try {
+            interface Response {
+                organizations: any;
+            }
+            if (orgs.organizations.length > 0) {
+                return;
+            }
+            const res = await useApiFetch('/api/organizations/read');
+            const { organizations } = res as Response;
 
             orgs.getOrganizations(organizations);
+        } catch (error: any) {
+            switch (error.response.status) {
+                case 500:
+                    alert(error.response._data.data.message);
+                    break;
+                case 403:
+                    alert(error.response._data.data.message);
+                    break;
+                case 404:
+                    alert(error.response._data.data.message);
+                    break;
+                default:
+                    break;
+            }
         }
     }
 
     async function createOrganization(input: any) {
-        interface Response {
-            code: any;
-            message: any;
-            organization: any;
-        }
+        try {
+            interface Response {
+                organization: any;
+            }
 
-        orgs.toggleLoading(true);
+            orgs.toggleLoading(true);
 
-        const res = await $fetch('/api/organizations/create-organization', {
-            method: 'POST',
-            headers: {
-                Accept: "application/json",
-            },
-            body: {
+            const res = await useApiFetch('/api/organization/create', "POST", {
                 name: input.name,
                 description: input.description
-            }
-        }).finally(() => {
-            orgs.toggleLoading(false);
-        }) as Response;
+            }).finally(() => {
+                orgs.toggleLoading(false);
+            }) as Response;
 
-        const { code, message, organization } = res;
+            const { organization } = res;
 
-        switch (code) {
-            case 200:
-                orgs.createOrganization(organization);
-                popups.toggleOrganizationPopup(false);
-                window.location.href = `/board/${organization.org_uuid}`;
-                break;
-            case 422:
-                const stringMessages = [];
-                for (const messagesArray of Object.values(message)) {
-                    if (Array.isArray(messagesArray)) {
-                        stringMessages.push(...messagesArray.filter(msg => typeof msg === 'string'));
+            orgs.createOrganization(organization);
+            popups.toggleOrganizationPopup(false);
+            window.location.href = `/board/${organization.org_uuid}`;
+        } catch (error: any) {
+            switch (error.response.status) {
+                case 422:
+                    const stringMessages = [];
+                    for (const messagesArray of Object.values(error.response._data.data.message)) {
+                        if (Array.isArray(messagesArray)) {
+                            stringMessages.push(...messagesArray.filter(msg => typeof msg === 'string'));
+                        }
                     }
-                }
-                orgs.setMessages(stringMessages);
-                break;
-            default:
-                break;
-        }
-    }
-
-    async function inviteOrgMembers(users: any) {
-        const res = await $fetch('/api/organizations/invite-organization', {
-            method: 'POST',
-            headers: {
-                Accept: "application/json",
-            },
-            body: {
-                users: users
+                    orgs.setMessages(stringMessages);
+                    break;
+                case 500:
+                    orgs.setMessages(error.response._data.data.message);
+                default:
+                    orgs.setMessages("OOPS! Sorry, something went wrong with creating new organization. Please try again later.");
+                    break;
             }
-        });
-        console.log(res);
-    }
-
-    async function acceptInvitation(data: any, email: any, signature: any) {
-        const res = await $fetch('/api/organizations/accept-invitation', {
-            method: 'POST',
-            headers: {
-                Accept: "application/json",
-            },
-            body: {
-                user: data,
-                email: email,
-                signature: signature
-            }
-        });
-
-        if (res) {
-            const { token, expire } = res as AcceptInvitationRes;
-            const cookie = useCookie('auth', { maxAge: expire, secure: true });
-            cookie.value = token;
-            return await navigateTo('/');
         }
     }
 
@@ -158,7 +129,5 @@ export default function useOrganizations() {
         getCurrentOrganization,
         getOrganizations,
         createOrganization,
-        inviteOrgMembers,
-        acceptInvitation,
     }
 }

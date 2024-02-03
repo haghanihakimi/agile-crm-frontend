@@ -2,6 +2,7 @@
 import { ref } from 'vue';
 import createOrganization from '~/partials/create-organization.vue';
 import { usePopupsStore } from '~/server/store/popups';
+import useInvitations from '~/composables/invitations';
 
 useHead({
     title: 'Agile - Create Organization',
@@ -19,10 +20,12 @@ definePageMeta({
 });
 
 const popups = usePopupsStore();
-const route = useRoute();
+const { getInvitations } = useInvitations();
 
 onMounted(() => {
-    popups.toggleOrganizationPopup(true);
+    getInvitations().finally(() => {
+        popups.toggleOrganizationPopup(true);
+    });
 })
 </script>
 

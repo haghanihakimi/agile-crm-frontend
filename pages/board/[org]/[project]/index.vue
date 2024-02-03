@@ -19,10 +19,11 @@ definePageMeta({
 });
 
 const profiles = useProfilesStore();
+const router = useRouter();
 </script>
 
 <template>
-    <div class="w-full relative">
+    <div class="w-full bg-mystic-midnight relative">
         <NuxtLoadingIndicator />
         <boardVue v-if="profiles.auth" />
     </div>

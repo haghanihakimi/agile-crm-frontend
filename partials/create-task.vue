@@ -9,13 +9,21 @@ import { useTasksStore } from '~/server/store/tasks';
 import { useMemberstore } from '~/server/store/members';
 import useTasks from '~/composables/tasks';
 import { usePopupsStore } from '~/server/store/popups';
-import { useProjectsStore } from '~/server/store/projects';
 
 const popups = usePopupsStore();
 const members = useMemberstore();
-const projects = useProjectsStore();
 const tasks = useTasksStore();
 const { createNewTask } = useTasks();
+
+const assignees = ref({
+    mode: 'tags',
+    value: [],
+    closeOnSelect: false,
+    options: [],
+    placeholder: 'Assign task to...',
+    searchable: true,
+    createOption: true
+})
 
 const newTaskData = ref({
     name: '',
@@ -26,8 +34,8 @@ const newTaskData = ref({
     privacy: false,
 });
 
-const createTask = (val) => {
-    createNewTask(val).finally(() => {
+const createTask = (val, taskAssignees) => {
+    createNewTask(val, taskAssignees).finally(() => {
         if (tasks.messages.length <= 0) {
             newTaskData.value.name = ''
             newTaskData.value.description = ''
@@ -41,6 +49,13 @@ const createTask = (val) => {
         }
     });
 }
+
+onMounted(() => {
+    members.orgMembers.map((member, i) => assignees.value.options.push({
+        value: member.email,
+        label: `${member.firstname} ${member.lastname}`,
+    }))
+})
 </script>
 
 <template>
@@ -61,12 +76,12 @@ const createTask = (val) => {
 
             <!--  -->
             <form class="w-full flex flex-col gap-4 p-4" id="newtaskInputs" method="POST"
-                @submit.prevent="createTask(newTaskData)">
+                @submit.prevent="createTask(newTaskData, assignees)">
                 <input type="text" placeholder="Task Name" v-model="newTaskData.name"
                     class="w-full min-h-[38px] rounded text-base tracking-wider font-bold text-gray-300 bg-deep-ocean-blue border border-gray-700 shadow-md ring-4 ring-transparent transition duration-200 focus:ring-1 focus:ring-tranquility focus:outline-none" />
 
                 <div class="w-full flex flex-row items-center justify-start">
-                    <Multiselect v-model="members.projectAssignees.value" v-bind="members.projectAssignees"></Multiselect>
+                    <Multiselect v-model="assignees.value" v-bind="assignees"></Multiselect>
                 </div>
 
                 <textarea v-model="newTaskData.description"

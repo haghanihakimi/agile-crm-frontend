@@ -13,7 +13,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     apiSecret: '',
     public: {
-      apiBase: '/api'
+      backendDomain: "http://localhost:443"
     }
   },
   modules: [

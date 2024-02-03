@@ -38,15 +38,6 @@ const boardLink = computed(() => {
                         </p>
                     </NuxtLink>
                 </li>
-                <li class="inline-block">
-                    <NuxtLink :to="`/calendar/${organizations.activeOrganization.org_uuid}`" class="inline-block text-base font-medium tracking-wide px-4 py-2 text-gray-300 relative group">
-                        <p :class="`block w-fit relative ${router.currentRoute.value.name === 'calendar-org' ? 'text-tranquility' : ''}`">
-                            Calendar
-                            <span
-                                class="absolute w-full h-[2.3px] rounded-full bg-tranquility bottom-0 left-0 transition duration-200 scale-x-0 group-hover:scale-x-100">&nbsp;</span>
-                        </p>
-                    </NuxtLink>
-                </li>
             </ul>
         </div>
     </div>
