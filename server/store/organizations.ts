@@ -20,6 +20,7 @@ export const useOrgsStore = defineStore('organizations', {
         organizations: [] as Organization[],
         activeOrganization: {} as ActiveOrganization,
         loading: false,
+        outputCode: 0,
         messages: '',
     }),
     actions: {
@@ -34,6 +35,22 @@ export const useOrgsStore = defineStore('organizations', {
         },
         toggleLoading(status: boolean) {
             this.loading = status
+        },
+        updateOrganization(organization: ActiveOrganization){
+            const org = this.organizations.find((org: any) => org.org_uuid === organization.org_uuid);
+            if (org) {
+                org.name = organization.name;
+                org.description = organization.description;
+            }
+        },
+        deleteOrganization(organization: ActiveOrganization){
+            const index = this.organizations.findIndex((org: any) => org.org_uuid === organization.org_uuid);
+            if (index > -1) {
+                this.organizations.splice(index, 1);
+            }
+        },
+        setOutputCode(code: any) {
+            this.outputCode = code;
         },
         setMessages(message: any) {
             this.messages = message

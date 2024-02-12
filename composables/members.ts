@@ -101,9 +101,51 @@ export default function useMembers() {
         }
     }
 
+    async function removeOrgMember(memberId: number, orgId: number) {
+        // 
+        try {
+            interface Response {
+                member: any;
+                code: any;
+                message: any;
+            }
+
+            members.toggleRemovingMember(true);
+
+            const res = await useApiFetch(`/api/remove/organization/${orgId}/member/${memberId}`, "DELETE")
+                .finally(() => {
+                    members.toggleRemovingMember(false);
+                }) as Response;
+
+            console.log(res);
+
+            const { code, member, message } = res;
+
+            members.setOutputCode(code);
+            members.removeOrgMember(memberId);
+
+        } catch (error: any) {
+            switch (error.response.status) {
+                case 403:
+                    members.setMessages(error.response._data.message);
+                    break;
+                case 404:
+                    members.setMessages(error.response._data.message);
+                    break;
+                case 500:
+                    members.setMessages(error.response._data.message);
+                    break;
+                default:
+                    members.setMessages("OOPS! Sorry, something went wrong with creating new organization. Please try again later.");
+                    break;
+            }
+        }
+    }
+
     return {
         getOrgMembers,
         getProjectMembers,
         getTaskMembers,
+        removeOrgMember,    
     }
 }

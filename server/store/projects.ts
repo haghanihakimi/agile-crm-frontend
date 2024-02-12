@@ -64,5 +64,11 @@ export const useProjectsStore = defineStore('projects', {
         getSelectedProject(project: any) {
             this.selectedProject = project
         },
+        deleteProject(project: any) {
+            const index = this.projects.findIndex((item: any) => item.project_uuid === project.project_uuid);
+            if (index > -1) {
+                this.projects.splice(index, 1);
+            }
+        },
     },
 })

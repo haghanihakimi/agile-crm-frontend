@@ -2,6 +2,11 @@
 export default defineNuxtConfig({
   devtools: { enabled: false },
   ssr: true,
+  nitro: {
+    compressPublicAssets: {
+      brotli: true
+    }
+  },
   experimental: {
     componentIslands: true // false or 'local+remote'
   },
@@ -39,5 +44,10 @@ export default defineNuxtConfig({
         }
       },
     }
-  }
+  },
+  plugins: [
+    '~/plugins/day-time',
+    '~/plugins/plural',
+    '~/plugins/fetch-data',
+  ]
 })

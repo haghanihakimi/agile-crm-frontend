@@ -25,6 +25,12 @@ const createNewOrganization = () => {
         inputs.value.description = '';
     })
 }
+
+const fetchInvitations = () => {
+    if (activeKey.value == 2) {
+        getInvitations();
+    }
+}
 </script>
 
 <template>
@@ -39,7 +45,8 @@ const createNewOrganization = () => {
                 </a-button>
             </div>
             <ClientOnly>
-                <a-tabs v-model:activeKey="activeKey" centered>
+                <a-tabs v-model:activeKey="activeKey" centered animated class="overflow-hidden"
+                    @change="() => { fetchInvitations() }">
                     <a-tab-pane key="1" tab="Create Organization">
                         <!-- popup title & control -->
                         <div class="w-full flex flex-row justify-between items-center p-4">

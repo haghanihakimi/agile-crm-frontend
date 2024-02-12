@@ -34,13 +34,16 @@ export default function useOrganizations() {
             switch (code) {
                 case 200:
                     orgs.currentOrganization(organization);
-                    if (router.currentRoute.value.params.org &&
-                        router.currentRoute.value.params.org !== organization.org_uuid) {
+                    if ((router.currentRoute.value.params.org &&
+                        router.currentRoute.value.params.org !== organization.org_uuid) ||
+                        router.currentRoute.value.name === "organization-new-create") {
                         navigateTo(`/board/${organization.org_uuid}`)
                     }
                     break;
                 case 404:
-                    window.location.href = '/organization/new/create';
+                    if (router.currentRoute.value.name !== "organization-new-create") {
+                        window.location.href = '/organization/new/create';
+                    }
                     break;
                 default:
                     break;
@@ -71,13 +74,13 @@ export default function useOrganizations() {
         } catch (error: any) {
             switch (error.response.status) {
                 case 500:
-                    alert(error.response._data.data.message);
+                    alert(error.response._data.message);
                     break;
                 case 403:
-                    alert(error.response._data.data.message);
+                    alert(error.response._data.message);
                     break;
                 case 404:
-                    alert(error.response._data.data.message);
+                    alert(error.response._data.message);
                     break;
                 default:
                     break;
@@ -109,7 +112,7 @@ export default function useOrganizations() {
             switch (error.response.status) {
                 case 422:
                     const stringMessages = [];
-                    for (const messagesArray of Object.values(error.response._data.data.message)) {
+                    for (const messagesArray of Object.values(error.response._data.message)) {
                         if (Array.isArray(messagesArray)) {
                             stringMessages.push(...messagesArray.filter(msg => typeof msg === 'string'));
                         }
@@ -117,8 +120,106 @@ export default function useOrganizations() {
                     orgs.setMessages(stringMessages);
                     break;
                 case 500:
-                    orgs.setMessages(error.response._data.data.message);
+                    orgs.setMessages(error.response._data.message);
                 default:
+                    orgs.setMessages("OOPS! Sorry, something went wrong with creating new organization. Please try again later.");
+                    break;
+            }
+        }
+    }
+
+    async function updateOrganization(id: string, name: string, description: string) {
+        try {
+            interface Response {
+                organization: any;
+                message: any;
+                code: any;
+            }
+
+
+            if (!orgs.loading) {
+                orgs.toggleLoading(true);
+                const res = await useApiFetch(`/api/organization/update/${id}`, "PATCH", {
+                    name: name,
+                    description: description,
+                }).finally(() => {
+                    orgs.toggleLoading(false);
+                }) as Response;
+
+                const { organization, message, code } = res;
+
+                orgs.setMessages(message);
+                orgs.setOutputCode(code);
+                orgs.updateOrganization(organization);
+            }
+        } catch (error: any) {
+            switch (error.response.status) {
+                case 403:
+                    orgs.setMessages(error.response._data.message);
+                    orgs.setOutputCode(403);
+                    break;
+                case 404:
+                    orgs.setMessages(error.response._data.message);
+                    break;
+                case 422:
+                    const stringMessages = [];
+                    for (const messagesArray of Object.values(error.response._data.message)) {
+                        if (Array.isArray(messagesArray)) {
+                            stringMessages.push(...messagesArray.filter(msg => typeof msg === 'string'));
+                        }
+                    }
+                    orgs.setMessages(stringMessages);
+                    orgs.setOutputCode(422);
+                    break;
+                case 500:
+                    orgs.setMessages(error.response._data.message);
+                    orgs.setOutputCode(500);
+                default:
+                    orgs.setOutputCode(500);
+                    orgs.setMessages("OOPS! Sorry, something went wrong with creating new organization. Please try again later.");
+                    break;
+            }
+        }
+    }
+
+    async function deleteOrganization(id: string) {
+        try {
+            interface Response {
+                organization: any;
+                sessions: number,
+            }
+
+            if (!orgs.loading) {
+                orgs.toggleLoading(true);
+                const res = await useApiFetch(`/api/organization/delete/${id}`, "DELETE")
+                    .finally(() => {
+                        orgs.toggleLoading(false);
+                    }) as Response;
+
+                const { organization, sessions } = res;
+
+                orgs.deleteOrganization(organization);
+                orgs.setOutputCode(200);
+
+                if (sessions <= 0) {
+                    window.location.reload();
+                }
+            }
+        } catch (error: any) {
+            switch (error.response.status) {
+                case 403:
+                    orgs.setMessages(error.response._data.message);
+                    orgs.setOutputCode(403);
+                    break;
+                case 404:
+                    orgs.setMessages(error.response._data.message);
+                    orgs.setOutputCode(404);
+                    break;
+                case 500:
+                    orgs.setMessages(error.response._data.message);
+                    orgs.setOutputCode(500);
+                default:
+                    orgs.setOutputCode(500);
                     orgs.setMessages("OOPS! Sorry, something went wrong with creating new organization. Please try again later.");
                     break;
             }
@@ -129,5 +230,7 @@ export default function useOrganizations() {
         getCurrentOrganization,
         getOrganizations,
         createOrganization,
+        updateOrganization,
+        deleteOrganization,
     }
 }

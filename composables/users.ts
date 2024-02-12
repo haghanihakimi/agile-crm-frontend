@@ -1,8 +1,10 @@
+import { useOrgsStore } from "~/server/store/organizations";
 import { useProfilesStore } from "~/server/store/profiles";
 
 
 export default function useUsers() {
     const profiles = useProfilesStore();
+    const orgs = useOrgsStore();
 
     async function signUp(user: any) {
         interface Response {
@@ -28,17 +30,17 @@ export default function useUsers() {
         } catch (error: any) {
             switch (error.response.status) {
                 case 500:
-                    profiles.getMessage(error.response._data.data.message);
+                    profiles.getMessage(error.response._data.message);
                     break;
                 case 403:
-                    profiles.getMessage(error.response._data.data.message);
+                    profiles.getMessage(error.response._data.message);
                     break;
                 case 404:
-                    profiles.getMessage(error.response._data.data.message);
+                    profiles.getMessage(error.response._data.message);
                     break;
                 case 422:
                     const stringMessages = [];
-                    for (const messagesArray of Object.values(error.response._data.data.message)) {
+                    for (const messagesArray of Object.values(error.response._data.message)) {
                         if (Array.isArray(messagesArray)) {
                             stringMessages.push(...messagesArray.filter(msg => typeof msg === 'string'));
                         }
@@ -74,17 +76,17 @@ export default function useUsers() {
         } catch (error: any) {
             switch (error.response.status) {
                 case 500:
-                    profiles.getMessage(error.response._data.data.message);
+                    profiles.getMessage(error.response._data.message);
                     break;
                 case 403:
-                    profiles.getMessage(error.response._data.data.message);
+                    profiles.getMessage(error.response._data.message);
                     break;
                 case 404:
-                    profiles.getMessage(error.response._data.data.message);
+                    profiles.getMessage(error.response._data.message);
                     break;
                 case 422:
                     const stringMessages = [];
-                    for (const messagesArray of Object.values(error.response._data.data.message)) {
+                    for (const messagesArray of Object.values(error.response._data.message)) {
                         if (Array.isArray(messagesArray)) {
                             stringMessages.push(...messagesArray.filter(msg => typeof msg === 'string'));
                         }
@@ -100,7 +102,7 @@ export default function useUsers() {
 
     async function signOut() {
         const cookies = useCookie('auth');
-        const res = await useApiFetch('/api/users/logout', "POST");
+        const res = await useApiFetch('/api/signout', "POST");
 
         if (res) {
             cookies.value = null;
@@ -136,7 +138,7 @@ export default function useUsers() {
                     break;
                 case 422:
                     const stringMessages = [];
-                    for (const messagesArray of Object.values(error.response._data.data.message)) {
+                    for (const messagesArray of Object.values(error.response._data.message)) {
                         if (Array.isArray(messagesArray)) {
                             stringMessages.push(...messagesArray.filter(msg => typeof msg === 'string'));
                         }
@@ -145,15 +147,15 @@ export default function useUsers() {
                     profiles.setOutputCode(error.response.status);
                     break;
                 case 500:
-                    profiles.getMessage(error.response._data.data.message);
+                    profiles.getMessage(error.response._data.message);
                     profiles.setOutputCode(error.response.status);
                     break;
                 case 403:
-                    profiles.getMessage(error.response._data.data.message);
+                    profiles.getMessage(error.response._data.message);
                     profiles.setOutputCode(error.response.status);
                     break;
                 case 404:
-                    profiles.getMessage(error.response._data.data.message);
+                    profiles.getMessage(error.response._data.message);
                     profiles.setOutputCode(error.response.status);
                     break;
                 default:
@@ -194,7 +196,7 @@ export default function useUsers() {
                     break;
                 case 422:
                     const stringMessages = [];
-                    for (const messagesArray of Object.values(error.response._data.data.message)) {
+                    for (const messagesArray of Object.values(error.response._data.message)) {
                         if (Array.isArray(messagesArray)) {
                             stringMessages.push(...messagesArray.filter(msg => typeof msg === 'string'));
                         }
@@ -203,15 +205,15 @@ export default function useUsers() {
                     profiles.setOutputCode(error.response.status);
                     break;
                 case 500:
-                    profiles.getMessage(error.response._data.data.message);
+                    profiles.getMessage(error.response._data.message);
                     profiles.setOutputCode(error.response.status);
                     break;
                 case 403:
-                    profiles.getMessage(error.response._data.data.message);
+                    profiles.getMessage(error.response._data.message);
                     profiles.setOutputCode(error.response.status);
                     break;
                 case 404:
-                    profiles.getMessage(error.response._data.data.message);
+                    profiles.getMessage(error.response._data.message);
                     profiles.setOutputCode(error.response.status);
                     break;
                 default:
@@ -243,13 +245,58 @@ export default function useUsers() {
                     profiles.setOutputCode(error.response.status);
                     break;
                 case 500:
-                    profiles.getMessage(error.response._data.data.message);
+                    profiles.getMessage(error.response._data.message);
                     break;
                 case 403:
-                    profiles.getMessage(error.response._data.data.message);
+                    profiles.getMessage(error.response._data.message);
                     break;
                 case 404:
-                    profiles.getMessage(error.response._data.data.message);
+                    profiles.getMessage(error.response._data.message);
+                    break;
+                default:
+                    break;
+            }
+            return Promise.resolve(error);
+        }
+    }
+
+    async function fetchUsers(userId: any) {
+        try {
+            interface Response {
+                user: any;
+                message: any;
+                code: any;
+            }
+            const existingUser = profiles.users.find(user => user.id === userId);
+            if (existingUser) {
+                return; // Return the existing user
+            }
+
+            profiles.toggleLoadingProfile(true);
+
+            const res = await useApiFetch(`/api/fetch/profile/user/${userId}`)
+                .finally(() => {
+                    profiles.toggleLoadingProfile(false);
+                });
+
+            const { user, message, code } = res as Response;
+
+            profiles.fetchUsers(user);
+
+        } catch (error: any) {
+            switch (error.response.status) {
+                case 401:
+                    profiles.getMessage("Unauthorized access!");
+                    profiles.setOutputCode(error.response.status);
+                    break;
+                case 500:
+                    profiles.getMessage(error.response._data.message);
+                    break;
+                case 403:
+                    profiles.getMessage(error.response._data.message);
+                    break;
+                case 404:
+                    profiles.getMessage(error.response._data.message);
                     break;
                 default:
                     break;
@@ -265,5 +312,6 @@ export default function useUsers() {
         saveProfile,
         updateProfileImage,
         removeProfile,
+        fetchUsers,
     }
 }

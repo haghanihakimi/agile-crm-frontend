@@ -54,7 +54,7 @@ export default function useTasks() {
                 message: any;
                 totalTasks: any;
             }
-            if (router.currentRoute.value.params.org === undefined || router.currentRoute.value.name !== "dashboard-org") {
+            if (tasks.totalTasks > 0) {
                 return;
             }
             const res = await useApiFetch(`/api/tasks/count/tasks/${router.currentRoute.value.params.org}`);
@@ -88,7 +88,7 @@ export default function useTasks() {
                 message: any;
                 completedTasks: any;
             }
-            if (router.currentRoute.value.params.org === undefined || router.currentRoute.value.name !== "dashboard-org") {
+            if (tasks.completedTasks > 0) {
                 return;
             }
             const res = await useApiFetch(`/api/completed/tasks/${router.currentRoute.value.params.org}`);
@@ -122,7 +122,7 @@ export default function useTasks() {
                 message: any;
                 overdueTasks: any;
             }
-            if (router.currentRoute.value.params.org === undefined || router.currentRoute.value.name !== "dashboard-org") {
+            if (tasks.overdueTasks > 0) {
                 return;
             }
             const res = await useApiFetch(`/api/overdue/tasks/${router.currentRoute.value.params.org}`);

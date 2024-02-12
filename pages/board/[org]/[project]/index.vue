@@ -1,6 +1,8 @@
 <script setup>
 import boardVue from "~/layouts/board/index.vue";
 import { useProfilesStore } from "~/server/store/profiles";
+import useTasks from '~/composables/tasks';
+import useProjects from "~/composables/projects";
 
 useHead({
     title: 'Agile - Tasks Board',
@@ -19,7 +21,12 @@ definePageMeta({
 });
 
 const profiles = useProfilesStore();
-const router = useRouter();
+const { getTasks } = useTasks();
+const { currentProject } = useProjects();
+
+onMounted(async () => {
+   await currentProject().then(async () => { await getTasks() })
+})
 </script>
 
 <template>

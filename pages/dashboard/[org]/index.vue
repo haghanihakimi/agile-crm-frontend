@@ -1,6 +1,10 @@
 <script setup>
 import dashboardVue from "~/layouts/dashboard/index.vue";
 import { useProfilesStore } from "~/server/store/profiles";
+import useTasks from '~/composables/tasks';
+import useProjects from "~/composables/projects";
+import useMembers from "~/composables/members";
+
 useHead({
     title: 'Agile - Dashboard',
     meta: {
@@ -17,7 +21,17 @@ definePageMeta({
     ],
 });
 const profiles = useProfilesStore();
+const { getTotalTasks, getCompletedTasks, getOverdueTasks } = useTasks();
+const { getTotalProjects } = useProjects();
+const { getProjectMembers } = useMembers();
 
+onMounted(async () => {
+    await getTotalTasks();
+    await getCompletedTasks();
+    await getOverdueTasks();
+    await getTotalProjects();
+    await getProjectMembers();
+})
 </script>
 
 <template>

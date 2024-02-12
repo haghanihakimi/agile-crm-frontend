@@ -1,9 +1,11 @@
 import { useProjectsStore } from "~/server/store/projects";
 import { usePopupsStore } from "~/server/store/popups";
 import { useTasksStore } from "~/server/store/tasks";
+import { useOrgsStore } from "~/server/store/organizations";
 
 export default function useProjects() {
     const projects = useProjectsStore();
+    const orgs = useOrgsStore();
     const tasks = useTasksStore();
     const popups = usePopupsStore();
     const router = useRouter();
@@ -16,11 +18,11 @@ export default function useProjects() {
                 message: any;
                 allProjects: any;
             }
-            if (router.currentRoute.value.params.org == undefined || projects.projects.length > 0) {
+            if (projects.projects.length > 0) {
                 return
             }
             projects.setLoadingProjects(true);
-            const res = await useApiFetch(`/api/project/read/projects/${router.currentRoute.value.params.org}`)
+            const res = await useApiFetch(`/api/project/read/projects/${orgs.activeOrganization.org_uuid}`)
                 .finally(() => {
                     projects.setLoadingProjects(false)
                 });
@@ -57,7 +59,7 @@ export default function useProjects() {
                 return;
             }
 
-            const res = await useApiFetch(`/api/project/active/project/${router.currentRoute.value.params.org}/${router.currentRoute.value.params.project}`);
+            const res = await useApiFetch(`/api/project/active/project/${orgs.activeOrganization.org_uuid}/${router.currentRoute.value.params.project}`);
             const { code, message, project } = res as Response;
             projects.setCurrentProject(project);
             cookies.value !== project.project_uuid && tasks.getTodoTasks([]);
@@ -86,7 +88,7 @@ export default function useProjects() {
             }
             projects.setCreatingProject(true);
 
-            const res = await useApiFetch(`/api/project/create/${router.currentRoute.value.params.org}`, "POST", input)
+            const res = await useApiFetch(`/api/project/create/${orgs.activeOrganization.org_uuid}`, "POST", input)
                 .finally(() => {
                     projects.setCreatingProject(false);
                 });
@@ -122,10 +124,10 @@ export default function useProjects() {
                 message: any;
                 projectsCount: any;
             }
-            if (router.currentRoute.value.name !== "dashboard-org" || router.currentRoute.value.params.org == undefined) {
+            if (projects.totalProjects > 0) {
                 return;
             }
-            const res = await useApiFetch(`/api/project/total/count/${router.currentRoute.value.params.org}`);
+            const res = await useApiFetch(`/api/project/total/count/${orgs.activeOrganization.org_uuid}`);
             const { code, message, projectsCount } = res as Response;
 
             if (code === 200) {
@@ -157,7 +159,7 @@ export default function useProjects() {
             }
             projects.setEditingProject(true);
 
-            const res = await useApiFetch(`/api/project/update/${router.currentRoute.value.params.org}/${projects.selectedProject.project_uuid}`, "POST", {
+            const res = await useApiFetch(`/api/project/update/${orgs.activeOrganization.org_uuid}/${projects.selectedProject.project_uuid}`, "POST", {
                 id: projects.selectedProject.project_uuid,
                 title: projects.selectedProject.title,
                 description: projects.selectedProject.description,
@@ -212,20 +214,20 @@ export default function useProjects() {
                 deletedProject: any;
             }
             projects.setDeletingProject(true);
-            const res = await useApiFetch(`/api/project/delete/${router.currentRoute.value.params.org}/${projects.selectedProject.project_uuid}`, "DELETE").finally(() => {
+            const res = await useApiFetch(`/api/project/delete/${orgs.activeOrganization.org_uuid}/${projects.selectedProject.project_uuid}`, "DELETE").finally(() => {
                 projects.setDeletingProject(false)
             });
             const { code, message } = res as Response;
 
-            const index = projects.projects.findIndex((project: any) => project.project_uuid == projects.selectedProject.project_uuid);
-            if (index !== -1) {
-                projects.projects.splice(index, 1);
-            }
+            projects.deleteProject(projects.selectedProject);
             popups.toggleDeleteProjectPopup(false);
             popups.toggleEditProjectPopup(false);
             projects.getSelectedProject({});
             tasks.getTodoTasks([]);
-            navigateTo(`/board/${router.currentRoute.value.params.org}`);
+            
+            if (router.currentRoute.value.params.project) {
+                navigateTo(`/board/${router.currentRoute.value.params.org}`); 
+            }
         } catch (error: any) {
             switch (error.response.status) {
                 case 422:

@@ -22,6 +22,9 @@ export const useProfilesStore = defineStore('profiles', {
     state: () => ({
         auth: false,
         profile: {} as Profile,
+        users: [] as Array<any>,
+        userProfile: {},
+        loadingProfile: false,
         messages: '',
         outputCode: 0,
         savingChanges: false,
@@ -49,5 +52,14 @@ export const useProfilesStore = defineStore('profiles', {
         toggleRemovingProfile(status: boolean) {
             this.removingProfile = status
         },
+        toggleLoadingProfile(status: boolean) {
+            this.loadingProfile = status
+        },
+        fetchUsers(user: any) {
+            this.users.push(user);
+        },
+        getUser(id: any) {
+            this.userProfile = this.users.find((user) => user.id == id);
+        }
     },
 })

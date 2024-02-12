@@ -33,6 +33,7 @@ export const useMemberstore = defineStore('members', {
         },
         inviteTo: 'Organization',
         loadingMembers: false,
+        removingMember: false,
         pendingInvitations: [] as Array<any>,
         messages: '',
         outputCode: 0,
@@ -69,6 +70,15 @@ export const useMemberstore = defineStore('members', {
         },
         setMessages(message: any) {
             this.messages = message;
+        },
+        toggleRemovingMember(status: boolean) {
+            this.removingMember = status
+        },
+        removeOrgMember(memberId: number) {
+            const index = this.orgMembers.findIndex((member: any) => member.user_id === memberId);
+            if (index > -1) {
+                this.orgMembers.splice(index, 1);
+            }
         },
     },
 })

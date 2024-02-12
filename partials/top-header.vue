@@ -7,11 +7,6 @@ import BtnGeneral from '~/components/buttons/general.vue';
 import { useMemberstore } from '~/server/store/members';
 import { useProfilesStore } from '~/server/store/profiles';
 import useUsers from '~/composables/users';
-import useOrganizations from '~/composables/organizations';
-import useProjects from '~/composables/projects';
-import useMembers from '~/composables/members';
-import useTasks from '~/composables/tasks';
-import useInvitations from '~/composables/invitations';
 
 const dateNow = new Date();
 const dayjs = useDayjs();
@@ -25,35 +20,17 @@ const organizations = useOrgsStore();
 const members = useMemberstore();
 const profiles = useProfilesStore();
 const { signOut } = useUsers();
-const { getOrganizations, getCurrentOrganization } = useOrganizations();
-const { getProjects, currentProject, getTotalProjects } = useProjects();
-const { getOrgMembers, getProjectMembers } = useMembers();
-const { getTasks, getTotalTasks, getCompletedTasks, getOverdueTasks } = useTasks();
-const { getInvitations } = useInvitations();
-
-onMounted(async () => {
-    await getOrganizations().then(() => {
-        getInvitations();
-    });
-    await getCurrentOrganization();
-    await getProjects();
-    await currentProject();
-    await getProjectMembers().then(async () => {
-        await getTotalProjects();
-    });
-    await getOrgMembers();
-    await getTasks().then(async () => {
-        await getTotalTasks();
-        await getCompletedTasks();
-        await getOverdueTasks();
-    });
-});
+const { $dayTime, $fetchData } = useNuxtApp()
 
 onClickOutside(profileMenuRef, () => {
     profileMenuVis.value = false
 })
 onClickOutside(createNewMenuRef, () => {
     createNewMenuVis.value = false
+})
+
+onMounted(() => {
+    $fetchData();
 })
 </script>
 
@@ -63,7 +40,7 @@ onClickOutside(createNewMenuRef, () => {
             <!-- Welcoming text section -->
             <div class="w-fit px-2 shrink-0 flex flex-col items-start justify-start px-2">
                 <h2 class="text-lg text-white font-bold tracking-wide">
-                    Good evening, {{ profiles.profile.user.firstname }}
+                    Good {{ $dayTime() }}, {{ profiles.profile.user.firstname }}
                 </h2>
                 <span class="text-sm text-gray-300 px-1">
                     {{ dayjs(dateNow).format("dddd, MMMM DD") }}
@@ -104,8 +81,8 @@ onClickOutside(createNewMenuRef, () => {
                     <a-avatar-group v-else :max-count="1" max-popover-trigger="click" size="medium"
                         :max-style="{ color: '#ffffff', backgroundColor: '#0F9690', cursor: 'pointer' }">
                         <a-tooltip placement="top" v-for="member in members.orgMembers" :key="member.id"
-                            :title="`${member.firstname} ${member.lastname}`">
-                            <a-avatar :src="member.image" :gap="1" style="background-color: #0C7075">
+                            :title="`${member.users.firstname} ${member.users.lastname}`">
+                            <a-avatar :src="member.users.image" :gap="1" style="background-color: #0C7075">
                                 <template #icon>
                                     <AntDesignOutlined />
                                 </template>
@@ -168,7 +145,7 @@ onClickOutside(createNewMenuRef, () => {
                                     <span>
                                         {{ org.name }}
                                     </span>
-                                    <Icon v-if="org.org_uuid === router.currentRoute.value.params.org"
+                                    <Icon v-if="org.org_uuid === organizations.activeOrganization.org_uuid"
                                         name="heroicons:check-solid" class="text-xl" />
                                 </a>
                             </div>
@@ -182,13 +159,13 @@ onClickOutside(createNewMenuRef, () => {
                                     New Organization
                                 </span>
                             </button>
-                            <!-- <NuxtLink to="/settings"
+                            <NuxtLink to="/admin"
                                 class="w-full py-2 px-4 flex flex-row gap-2 items-center justify-start text-gray-200 font-medium text-base tracking-wide transition duration-200 hover:bg-emerald-splash">
                                 <Icon name="eos-icons:admin-outlined" />
                                 <span>
                                     Admin Console
                                 </span>
-                            </NuxtLink> -->
+                            </NuxtLink>
                             <NuxtLink to="/settings"
                                 class="w-full py-2 px-4 flex flex-row gap-2 items-center justify-start text-gray-200 font-medium text-base tracking-wide transition duration-200 hover:bg-emerald-splash">
                                 <Icon name="heroicons:cog-8-tooth" class="text-xl" />

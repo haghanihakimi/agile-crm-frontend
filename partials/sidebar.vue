@@ -105,13 +105,13 @@ watch(activeKey, (newValue) => {
                                 </ClientOnly>
                             </ul>
                         </li>
-                        <!-- <li class="block bg-transparent rounded transition duration-200 hover:bg-deep-ocean-blue group">
+                        <li class="block bg-transparent rounded transition duration-200 hover:bg-deep-ocean-blue group">
                             <button
                                 class="text-base text-gray-300 flex flex-row gap-2 justify-start items-center p-3 transition duration-200 group-hover:text-tranquility">
                                 <Icon name="octicon:goal-24" class="text-xl p-0 m-0" />
                                 <span>Goals</span>
                             </button>
-                        </li> -->
+                        </li>
                         <li class="block bg-transparent rounded transition duration-200 hover:bg-deep-ocean-blue group">
                             <button
                                 class="text-base text-gray-300 flex flex-row gap-2 justify-start items-center p-3 transition duration-200 group-hover:text-tranquility">
@@ -121,11 +121,11 @@ watch(activeKey, (newValue) => {
                             <ul v-if="!members.loadingMembers">
                                 <li class="px-6 block bg-transparent" v-for="(member, index) in members.orgMembers"
                                     :key="index">
-                                    <NuxtLink
-                                        class="text-base text-gray-300 flex flex-row gap-2 justify-start items-center p-3 transition duration-200 bg-mystic-midnight hover:text-serene-skyline group-hover:bg-deep-ocean-blue">
+                                    <button type="button" @click="popups.toggleUserProfile(member.users.id, true)"
+                                        class="break-keep hyphens-auto whitespace-nowrap text-base text-gray-300 flex flex-row gap-2 justify-start items-center text-left p-3 transition duration-200 bg-mystic-midnight hover:text-serene-skyline group-hover:bg-deep-ocean-blue">
                                         <Icon name="heroicons:chevron-right-20-solid" class="text-lg" />
-                                        {{ `${member.firstname} ${member.lastname}` }}
-                                    </NuxtLink>
+                                        {{ `${member.users.firstname} ${member.users.lastname}` }}
+                                    </button>
                                 </li>
                             </ul>
                             <ul v-else class="px-6">

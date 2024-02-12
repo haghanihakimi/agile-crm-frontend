@@ -28,17 +28,21 @@ const assignees = ref({
     options: [],
     placeholder: 'Assign task to...',
     searchable: true,
-    createOption: true
+    createOption: false
 });
 
 onMounted(() => {
     tasks.refreshStatuses();
     tasks.refreshPriorities();
-    members.orgMembers.map((member) => assignees.value.options.push({
-        value: member.email,
-        label: `${member.firstname} ${member.lastname}`,
-    }))
-    tasks.selectedTask.members.map((member) => assignees.value.value.push(member.users.email))
+    members.orgMembers.map((member) => {
+        assignees.value.options.push({
+            value: member.users.email,
+            label: `${member.users.firstname} ${member.users.lastname}`,
+        });
+    })
+    tasks.selectedTask.members.map((member) => {
+        assignees.value.value.push(member.users.email)
+    })
 
     tasks.selectedTask.statuses.map((status) => tasks.setStatuses(status));
     tasks.selectedTask.priorities.map((priority) => tasks.setPriorities(priority));
@@ -56,7 +60,9 @@ onMounted(() => {
                     <h3 class="w-full text-base font-bold text-gray-300 flex flex-col gap-0">
                         {{ tasks.selectedTask.title }}
                         <span class="text-xs text-gray-500 font-normal">
-                            Edited at {{ dayjs(tasks.selectedTask.edits[0].updated_at).format('MMM DD, YYYY - HH:mm') }} by
+                            Edited at
+                            {{ dayjs(tasks.selectedTask.edits[0].updated_at).format('MMM DD, YYYY - HH:mm') }}
+                            by
                             <u>
                                 {{ `${tasks.selectedTask.edits[0].users.firstname}
                                                                 ${tasks.selectedTask.edits[0].users.lastname}` }}

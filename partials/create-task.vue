@@ -52,8 +52,8 @@ const createTask = (val, taskAssignees) => {
 
 onMounted(() => {
     members.orgMembers.map((member, i) => assignees.value.options.push({
-        value: member.email,
-        label: `${member.firstname} ${member.lastname}`,
+        value: member.users.email,
+        label: `${member.users.firstname} ${member.users.lastname}`,
     }))
 })
 </script>

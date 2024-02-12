@@ -16,8 +16,29 @@ export const usePopupsStore = defineStore('popups', {
             status: false,
             comment: '',
         },
+        orgUpdatePopup: {
+            name: '',
+            description: '',
+            id: '',
+            status: false,
+        },
+        orgDeletePopup: {
+            id: '',
+            status: false,
+        },
         editProfilePopup: false,
         deleteAccountPopup: false,
+        userProfilePopup: {
+            id: 0,
+            status: false,
+        },
+        removeOrgMemberPopup: {
+            id: 0,
+            org_id: 0,
+            firstname: '',
+            surname: '',
+            status: false,
+        }
     }),
     actions: {
         toggleMemberInvitation(status: boolean) {
@@ -59,6 +80,27 @@ export const usePopupsStore = defineStore('popups', {
         },
         toggleDeleteAccountPopup(status: boolean) {
             this.deleteAccountPopup = status;
+        },
+        toggleUserProfile(id: number, status: boolean) {
+            this.userProfilePopup.id = id;
+            this.userProfilePopup.status = status;
+        },
+        toggleOrgUpdatePopup(id: string, name: string, description: string, status: boolean) {
+            this.orgUpdatePopup.id = id;
+            this.orgUpdatePopup.name = name;
+            this.orgUpdatePopup.description = description;
+            this.orgUpdatePopup.status = status;
+        },
+        toggleOrgDeletePopup(id: string, status: boolean) {
+            this.orgDeletePopup.id = id;
+            this.orgDeletePopup.status = status;
+        },
+        toggleRemoveOrgMemberPopup(id: number, org_id: number, firstname: string, surname: string, status: boolean) {
+            this.removeOrgMemberPopup.id = id;
+            this.removeOrgMemberPopup.org_id = org_id;
+            this.removeOrgMemberPopup.firstname = firstname;
+            this.removeOrgMemberPopup.surname = surname;
+            this.removeOrgMemberPopup.status = status;
         },
     },
 })

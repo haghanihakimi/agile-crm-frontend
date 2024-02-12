@@ -19,6 +19,7 @@ import topHeader from "~/partials/top-header.vue";
 import secondaryNavigationVue from "~/partials/secondary-navigation.vue";
 import calendar from "~/partials/calendar.vue";
 import taskStatus from '~/partials/task-status.vue';
+import profileCard from '~/partials/profile-card.vue';
 
 const newTaskRow = ref(null);
 const popups = usePopupsStore();
@@ -59,6 +60,8 @@ const router = useRouter();
             <editTask v-if="popups.editTaskPopup" />
 
             <deleteCommentVue v-if="popups.deleteCommentPopup.status" />
+
+            <profileCard v-if="popups.userProfilePopup.status" />
 
             <div class="w-full px-6 py-2 relative">
                 <div class="w-full flex flex-row gap-2 relative">
