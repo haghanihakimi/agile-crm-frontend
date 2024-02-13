@@ -47,6 +47,7 @@ export default function useInvitations() {
                 members.setOutputCode(code);
             }
         } catch (error: any) {
+            const stringMessages = [];
             switch (error.response.status) {
                 case 500:
                     members.setMessages(error.response._data.data.message);
@@ -58,7 +59,6 @@ export default function useInvitations() {
                     members.setMessages(error.response._data.data.message);
                     break;
                 case 422:
-                    const stringMessages = [];
                     for (const messagesArray of Object.values(error.response._data.data.message)) {
                         if (Array.isArray(messagesArray)) {
                             stringMessages.push(...messagesArray.filter(msg => typeof msg === 'string'));

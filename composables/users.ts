@@ -38,6 +38,7 @@ export default function useUsers() {
             window.location.reload();
 
         } catch (error: any) {
+            const stringMessages = [];
             switch (error.response.status) {
                 case 500:
                     profiles.getMessage(error.response._data.message);
@@ -49,7 +50,6 @@ export default function useUsers() {
                     profiles.getMessage(error.response._data.message);
                     break;
                 case 422:
-                    const stringMessages = [];
                     for (const messagesArray of Object.values(error.response._data.message)) {
                         if (Array.isArray(messagesArray)) {
                             stringMessages.push(...messagesArray.filter(msg => typeof msg === 'string'));
