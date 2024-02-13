@@ -40,3 +40,7 @@ This is the frontend user interface for the Agile App project. Agile App is a we
 <li>Start the development server: <code>npm run dev</code> or <code>nuxt dev</code></li>
 <li><strong>Make sure you also cloned agile app - backend repository <code>https://github.com/haghanihakimi/agile-crm-backend</code></strong></li>
 </ul>
+
+## License
+GPL-3.0 license
+This project is licensed under the <a href="https://github.com/haghanihakimi/agile-crm-frontend?tab=GPL-3.0-1-ov-file#GPL-3.0-1-ov-file">GPL-3 license</a>.
