@@ -41,6 +41,15 @@ This is the frontend user interface for the Agile App project. Agile App is a we
 <li><strong>Make sure you also cloned agile app - backend repository <code>https://github.com/haghanihakimi/agile-crm-backend</code></strong></li>
 </ul>
 
+## Disclaimer
+<p>
+This project is provided as-is and is publicly accessible for cloning and usage. By cloning and using this project, you agree that all modifications, installations, and consequences of running this project on your system are solely your responsibility.
+
+The project owner and contributors will not be held responsible for any issues, damages, or losses that may occur as a result of cloning, modifying, or running this project on your system.
+
+Please ensure that you understand the risks and responsibilities involved before using this project.
+</p>
+
 ## License
 GPL-3.0 license
 This project is licensed under the <a href="https://github.com/haghanihakimi/agile-crm-frontend?tab=GPL-3.0-1-ov-file#GPL-3.0-1-ov-file">GPL-3 license</a>.
