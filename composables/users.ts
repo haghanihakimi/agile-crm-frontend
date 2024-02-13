@@ -3,29 +3,39 @@ import { useProfilesStore } from "~/server/store/profiles";
 
 
 export default function useUsers() {
+    interface User {
+        id: number;
+        firstname: string;
+        lastname: string;
+        username: string;
+        email: string;
+        email_verified_at: string;
+        phone: string;
+        image: string;
+        bio: string;
+        created_at: string;
+    }
     const profiles = useProfilesStore();
     const orgs = useOrgsStore();
 
     async function signUp(user: any) {
         interface Response {
-            token: any;
-            expire: any;
-            message: any;
-            code: any;
+            token: string;
+            expire: number;
+            message: string;
+            code: number;
         }
 
         try {
             const res = await useApiFetch('/api/user/create/account', "POST", user);
             const { token, expire, message, code } = res as Response;
 
-            if (code === 200) {
-                const cookie = useCookie('auth', { maxAge: expire, secure: true });
-                cookie.value = token;
+            const cookie = useCookie('auth', { maxAge: expire, secure: true });
+            cookie.value = token;
 
-                profiles.getMessage(message);
-                profiles.setOutputCode(200);
-                window.location.reload();
-            }
+            profiles.getMessage(message);
+            profiles.setOutputCode(code);
+            window.location.reload();
 
         } catch (error: any) {
             switch (error.response.status) {
@@ -56,16 +66,15 @@ export default function useUsers() {
 
     async function sginIn(user: any) {
         interface SignInRes {
-            token: any;
-            expire: any;
-            message: any;
-            code: any;
+            token: string;
+            expire: number;
+            message: string;
         }
 
         try {
             const res = await useApiFetch('/api/signin', "POST", user);
 
-            const { token, expire, message, code } = res as SignInRes;
+            const { token, expire, message } = res as SignInRes;
             const cookie = useCookie('auth', { maxAge: expire, secure: true });
             cookie.value = token;
 
@@ -74,6 +83,8 @@ export default function useUsers() {
             await navigateTo('/dashboard/undefined');
 
         } catch (error: any) {
+            const stringMessages = [];
+
             switch (error.response.status) {
                 case 500:
                     profiles.getMessage(error.response._data.message);
@@ -85,7 +96,6 @@ export default function useUsers() {
                     profiles.getMessage(error.response._data.message);
                     break;
                 case 422:
-                    const stringMessages = [];
                     for (const messagesArray of Object.values(error.response._data.message)) {
                         if (Array.isArray(messagesArray)) {
                             stringMessages.push(...messagesArray.filter(msg => typeof msg === 'string'));
@@ -101,21 +111,28 @@ export default function useUsers() {
     }
 
     async function signOut() {
-        const cookies = useCookie('auth');
-        const res = await useApiFetch('/api/signout', "POST");
+        try {
+            const cookies = useCookie('auth');
+            const res = await useApiFetch('/api/signout', "POST");
 
-        if (res) {
             cookies.value = null;
+        } catch (error: any) {
+            switch (error.response.status) {
+                case 500:
+                    alert(error.response._data.message);
+                    break;
+                default:
+                    alert(error.response._data.message);
+                    break;
+            }
         }
     }
 
     async function saveProfile() {
         interface Response {
-            user: any;
-            message: any;
-            code: any;
+            user: User;
+            message: string;
         }
-
         try {
             profiles.toggleSaveChanges(true);
 
@@ -131,13 +148,14 @@ export default function useUsers() {
             profiles.setOutputCode(200);
 
         } catch (error: any) {
+            const stringMessages = [];
+
             switch (error.response.status) {
                 case 401:
                     profiles.getMessage("Unauthorized access!");
                     profiles.setOutputCode(error.response.status);
                     break;
                 case 422:
-                    const stringMessages = [];
                     for (const messagesArray of Object.values(error.response._data.message)) {
                         if (Array.isArray(messagesArray)) {
                             stringMessages.push(...messagesArray.filter(msg => typeof msg === 'string'));
@@ -167,9 +185,8 @@ export default function useUsers() {
 
     async function updateProfileImage(image: any) {
         interface Response {
-            user: any;
-            message: any;
-            code: any;
+            user: User;
+            code: number;
         }
 
         try {
@@ -182,20 +199,21 @@ export default function useUsers() {
                     profiles.toggleSaveChanges(false);
                 });
 
-            const { message, user, code } = res as Response;
+            const { user, code } = res as Response;
 
             profiles.saveSettings(user);
 
             profiles.setOutputCode(code);
 
         } catch (error: any) {
+            const stringMessages = [];
+
             switch (error.response.status) {
                 case 401:
                     profiles.getMessage("Unauthorized access!");
                     profiles.setOutputCode(error.response.status);
                     break;
                 case 422:
-                    const stringMessages = [];
                     for (const messagesArray of Object.values(error.response._data.message)) {
                         if (Array.isArray(messagesArray)) {
                             stringMessages.push(...messagesArray.filter(msg => typeof msg === 'string'));
@@ -254,9 +272,9 @@ export default function useUsers() {
                     profiles.getMessage(error.response._data.message);
                     break;
                 default:
+                    profiles.getMessage(error.response._data.message);
                     break;
             }
-            return Promise.resolve(error);
         }
     }
 
@@ -264,8 +282,6 @@ export default function useUsers() {
         try {
             interface Response {
                 user: any;
-                message: any;
-                code: any;
             }
             const existingUser = profiles.users.find(user => user.id === userId);
             if (existingUser) {
@@ -279,7 +295,7 @@ export default function useUsers() {
                     profiles.toggleLoadingProfile(false);
                 });
 
-            const { user, message, code } = res as Response;
+            const { user } = res as Response;
 
             profiles.fetchUsers(user);
 

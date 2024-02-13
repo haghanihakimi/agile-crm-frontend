@@ -6,6 +6,7 @@ import createProject from '~/partials/create-project.vue';
 import inviteMembers from '~/partials/invite-members.vue';
 import editProject from '~/partials/edit-project.vue';
 import deleteProject from '~/partials/delete-project.vue';
+import profileCard from '~/partials/profile-card.vue';
 import sidebarVue from "~/partials/sidebar.vue";
 import topHeader from "~/partials/top-header.vue";
 import editProfile from '~/partials/edit-profile.vue';
@@ -74,6 +75,8 @@ useRafFn(() => {
             <editProject />
 
             <deleteProject />
+
+            <profileCard v-if="popups.userProfilePopup.status" />
 
             <inviteMembers />
 

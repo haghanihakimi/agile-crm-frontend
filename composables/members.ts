@@ -9,9 +9,7 @@ export default function useMembers() {
     async function getOrgMembers() {
         try {
             interface Response {
-                code: any;
-                message: any;
-                orgMembers: any;
+                orgMembers: Array<any>;
             }
             if (members.orgMembers.length > 0) {
                 return;
@@ -19,7 +17,7 @@ export default function useMembers() {
             members.setLoadingMembers(true);
             const res = await useApiFetch(`/api/read/organization/${orgs.activeOrganization.org_uuid}/members`)
                 .finally(() => { members.setLoadingMembers(false) });
-            const { code, message, orgMembers } = res as Response;
+            const { orgMembers } = res as Response;
             members.getOrgMembers(orgMembers);
         } catch (error: any) {
             switch (error.response.status) {
@@ -41,16 +39,14 @@ export default function useMembers() {
     async function getProjectMembers() {
         try {
             interface Response {
-                code: any;
-                message: any;
-                projectMembers: any;
+                projectMembers: Array<any>;
             }
             if (members.projectMembers.length > 0) {
                 return;
             }
             const res = await useApiFetch(`/api/read/project/${router.currentRoute.value.params.org}/${router.currentRoute.value.params.project}/members`);
 
-            const { code, message, projectMembers } = res as Response;
+            const { projectMembers } = res as Response;
             members.getProjectMembers(projectMembers);
         } catch (error: any) {
             switch (error.response.status) {
@@ -72,18 +68,16 @@ export default function useMembers() {
     async function getTaskMembers(orgUuid: any, projectUuid: any, taskUuid: any) {
         try {
             interface Response {
-                code: any;
-                message: any;
-                taskMembers: any;
+                taskMembers: Array<any>;
             }
             if (members.taskMembers.length > 0) {
                 return;
             }
             const res = await useApiFetch(`/api/read/task/${orgUuid}/${projectUuid}/${taskUuid}/members`);
 
-            const { code, message, taskMembers } = res as Response;
+            const { taskMembers } = res as Response;
 
-            members.getTaskMembers(res);
+            members.getTaskMembers(taskMembers);
         } catch (error: any) {
             switch (error.response.status) {
                 case 500:
@@ -105,9 +99,7 @@ export default function useMembers() {
         // 
         try {
             interface Response {
-                member: any;
-                code: any;
-                message: any;
+                code: number;
             }
 
             members.toggleRemovingMember(true);
@@ -119,7 +111,7 @@ export default function useMembers() {
 
             console.log(res);
 
-            const { code, member, message } = res;
+            const { code } = res;
 
             members.setOutputCode(code);
             members.removeOrgMember(memberId);

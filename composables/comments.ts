@@ -12,9 +12,9 @@ export default function useComments() {
     async function postComment() {
         try {
             interface Response {
-                code: any;
+                code: number;
                 message: string;
-                newComment: string;
+                newComment: object;
             }
             tasks.togglePostingComment(true);
             const res = await useApiFetch(`/api/comment/task/post/comment/${router.currentRoute.value.params.org}/${router.currentRoute.value.params.project}/${tasks.selectedTask.task_uuid}`,
@@ -24,24 +24,36 @@ export default function useComments() {
                 tasks.togglePostingComment(false);
             });
 
-            const { code, message, newComment } = res as Response;
+            const { newComment } = res as Response;
 
             tasks.postNewComment(newComment);
         } catch (error: any) {
+            const stringMessages = [];
+
             switch (error.response.status) {
                 case 404:
+                    tasks.setMessages(error.response._data.message);
                     popups.toggleDeleteCommentPopup(false, '');
                     break;
                 case 500:
+                    tasks.setMessages(error.response._data.message);
                     popups.toggleDeleteCommentPopup(false, '');
                     break;
                 case 403:
+                    tasks.setMessages(error.response._data.message);
                     popups.toggleDeleteCommentPopup(false, '');
                     break;
                 case 422:
+                    for (const messagesArray of Object.values(error.response._data.message)) {
+                        if (Array.isArray(messagesArray)) {
+                            stringMessages.push(...messagesArray.filter(msg => typeof msg === 'string'));
+                        }
+                    }
+                    tasks.setMessages(stringMessages);
                     popups.toggleDeleteCommentPopup(false, '');
                     break;
                 default:
+                    tasks.setMessages(error.response._data.message);
                     popups.toggleDeleteCommentPopup(false, '');
                     break;
             }
@@ -50,33 +62,34 @@ export default function useComments() {
 
     async function deleteComment(input: any) {
         try {
-            interface Response {
-                code: any;
-                message: string;
-            }
             tasks.toggleDeletingComment(true);
             const res = await useApiFetch(`/api/comment/task/delete/${router.currentRoute.value.params.org}/${router.currentRoute.value.params.project}/${tasks.selectedTask.task_uuid}/${input}`,
                 "DELETE").finally(() => {
                     tasks.toggleDeletingComment(false);
                 });
-            const { code, message } = res as Response;
+
             popups.toggleDeleteCommentPopup(false, '');
             tasks.deleteComment(input);
         } catch (error: any) {
             switch (error.response.status) {
                 case 404:
+                    tasks.setMessages(error.response._data.message);
                     popups.toggleDeleteCommentPopup(false, '');
                     break;
                 case 500:
+                    tasks.setMessages(error.response._data.message);
                     popups.toggleDeleteCommentPopup(false, '');
                     break;
                 case 403:
+                    tasks.setMessages(error.response._data.message);
                     popups.toggleDeleteCommentPopup(false, '');
                     break;
                 case 422:
+                    tasks.setMessages(error.response._data.message);
                     popups.toggleDeleteCommentPopup(false, '');
                     break;
                 default:
+                    tasks.setMessages(error.response._data.message);
                     popups.toggleDeleteCommentPopup(false, '');
                     break;
             }
@@ -85,35 +98,41 @@ export default function useComments() {
 
     async function saveComment(id: string, commentInput: string,) {
         try {
-            interface Response {
-                code: any;
-                message: string;
-            }
             const res = await useApiFetch(`/api/comment/task/save/comment/${router.currentRoute.value.params.org}/${router.currentRoute.value.params.project}/${tasks.selectedTask.task_uuid}/${id}`,
                 "POST", {
                 comment: commentInput,
             });
 
-            const { code, message } = res as Response;
-
             popups.toggleDeleteCommentPopup(false, '');
             tasks.editComment(id, commentInput);
 
         } catch (error: any) {
+            const stringMessages = [];
+
             switch (error.response.status) {
                 case 404:
+                    tasks.setMessages(error.response._data.message);
                     popups.toggleDeleteCommentPopup(false, '');
                     break;
                 case 500:
+                    tasks.setMessages(error.response._data.message);
                     popups.toggleDeleteCommentPopup(false, '');
                     break;
                 case 403:
+                    tasks.setMessages(error.response._data.message);
                     popups.toggleDeleteCommentPopup(false, '');
                     break;
                 case 422:
+                    for (const messagesArray of Object.values(error.response._data.message)) {
+                        if (Array.isArray(messagesArray)) {
+                            stringMessages.push(...messagesArray.filter(msg => typeof msg === 'string'));
+                        }
+                    }
+                    tasks.setMessages(stringMessages);
                     popups.toggleDeleteCommentPopup(false, '');
                     break;
                 default:
+                    tasks.setMessages(error.response._data.message);
                     popups.toggleDeleteCommentPopup(false, '');
                     break;
             }

@@ -5,6 +5,19 @@ import { usePopupsStore } from "~/server/store/popups";
 import { useUploadFileStore } from "~/server/store/uploadFile";
 
 export default function useTasks() {
+    interface Task {
+        task_uuid: string;
+        creator_id: number;
+        title: string;
+        description: string;
+        due_date: string;
+        private: number;
+        statuses: Array<any>;
+        priorities: Array<any>;
+        members: Array<any>;
+        comments: Array<any>;
+        files: Array<any>;
+    }
     const tasks = useTasksStore();
     const router = useRouter();
     const dateTime = useDateTimeStore();
@@ -14,9 +27,7 @@ export default function useTasks() {
     async function getTasks() {
         try {
             interface Response {
-                code: any;
-                message: any;
-                todoTasks: any;
+                todoTasks: Array<any>;
             }
             if (router.currentRoute.value.params.org === undefined || router.currentRoute.value.params.project === undefined || tasks.todoTasks.length > 0) {
                 return;
@@ -27,19 +38,19 @@ export default function useTasks() {
                     tasks.toggleLoadingTodoTasks(false);
                 });
 
-            const { code, message, todoTasks } = res as Response;
+            const { todoTasks } = res as Response;
 
             tasks.getTodoTasks(todoTasks);
         } catch (error: any) {
             switch (error.response.status) {
                 case 500:
-                    alert(error.response._data.data.message);
+                    alert(error.response._data.message);
                     break;
                 case 403:
-                    alert(error.response._data.data.message);
+                    alert(error.response._data.message);
                     break;
                 case 404:
-                    alert(error.response._data.data.message);
+                    alert(error.response._data.message);
                     break;
                 default:
                     break;
@@ -50,16 +61,15 @@ export default function useTasks() {
     async function getTotalTasks() {
         try {
             interface Response {
-                code: any;
-                message: any;
-                totalTasks: any;
+                code: number;
+                totalTasks: number;
             }
             if (tasks.totalTasks > 0) {
                 return;
             }
             const res = await useApiFetch(`/api/tasks/count/tasks/${router.currentRoute.value.params.org}`);
 
-            const { code, message, totalTasks } = res as Response;
+            const { code, totalTasks } = res as Response;
 
             if (code === 200) {
                 tasks.getTotalTasks(totalTasks);
@@ -67,13 +77,13 @@ export default function useTasks() {
         } catch (error: any) {
             switch (error.response.status) {
                 case 500:
-                    alert(error.response._data.data.message);
+                    alert(error.response._data.message);
                     break;
                 case 403:
-                    alert(error.response._data.data.message);
+                    alert(error.response._data.message);
                     break;
                 case 404:
-                    alert(error.response._data.data.message);
+                    alert(error.response._data.message);
                     break;
                 default:
                     break;
@@ -84,16 +94,15 @@ export default function useTasks() {
     async function getCompletedTasks() {
         try {
             interface Response {
-                code: any;
-                message: any;
-                completedTasks: any;
+                code: number;
+                completedTasks: number;
             }
             if (tasks.completedTasks > 0) {
                 return;
             }
             const res = await useApiFetch(`/api/completed/tasks/${router.currentRoute.value.params.org}`);
 
-            const { code, message, completedTasks } = res as Response;
+            const { code, completedTasks } = res as Response;
 
             if (code === 200) {
                 tasks.getCompletedTasks(completedTasks);
@@ -101,13 +110,13 @@ export default function useTasks() {
         } catch (error: any) {
             switch (error.response.status) {
                 case 500:
-                    alert(error.response._data.data.message);
+                    alert(error.response._data.message);
                     break;
                 case 403:
-                    alert(error.response._data.data.message);
+                    alert(error.response._data.message);
                     break;
                 case 404:
-                    alert(error.response._data.data.message);
+                    alert(error.response._data.message);
                     break;
                 default:
                     break;
@@ -118,28 +127,26 @@ export default function useTasks() {
     async function getOverdueTasks() {
         try {
             interface Response {
-                code: any;
-                message: any;
-                overdueTasks: any;
+                overdueTasks: number;
             }
             if (tasks.overdueTasks > 0) {
                 return;
             }
             const res = await useApiFetch(`/api/overdue/tasks/${router.currentRoute.value.params.org}`);
 
-            const { code, message, overdueTasks } = res as Response;
+            const { overdueTasks } = res as Response;
 
             tasks.getOverdueTasks(overdueTasks);
         } catch (error: any) {
             switch (error.response.status) {
                 case 500:
-                    alert(error.response._data.data.message);
+                    alert(error.response._data.message);
                     break;
                 case 403:
-                    alert(error.response._data.data.message);
+                    alert(error.response._data.message);
                     break;
                 case 404:
-                    alert(error.response._data.data.message);
+                    alert(error.response._data.message);
                     break;
                 default:
                     break;
@@ -148,122 +155,120 @@ export default function useTasks() {
     }
 
     async function createNewTask(input: any, assignees: any) {
-        interface Response {
-            code: any;
-            message: string;
-            newTask: any;
-        }
-        const res = await useApiFetch(`/api/task/create/${router.currentRoute.value.params.org}/${router.currentRoute.value.params.project}`, "POST", {
-            name: input.name,
-            taskAssignees: assignees.value,
-            description: input.description,
-            priority: tasks.priorities,
-            status: tasks.status,
-            privacy: input.privacy,
-            dueDate: (dateTime.dateTime instanceof Date) ? dateTime.dateTime.toISOString() : dateTime.dateTime,
-            org: router.currentRoute.value.params.org,
-            project: router.currentRoute.value.params.project,
-        });
-        const { code, message, newTask } = res as Response;
+        try {
+            interface Response {
+                newTask: Task;
+            }
 
-        switch (code) {
-            case 200:
-                tasks.pushNewTask(newTask);
-                tasks.getTotalTasks(tasks.totalTasks + 1);
-                popups.toggleNewTaskPopup(false);
-                break;
-            case 404:
-                tasks.setMessages(message);
-                break;
-            case 500:
-                tasks.setMessages(message);
-                break;
-            case 403:
-                tasks.setMessages(message);
-                break;
-            case 422:
-                const stringMessages = [];
-                for (const messagesArray of Object.values(message)) {
-                    if (Array.isArray(messagesArray)) {
-                        stringMessages.push(...messagesArray.filter(msg => typeof msg === 'string'));
+            const res = await useApiFetch(`/api/task/create/${router.currentRoute.value.params.org}/${router.currentRoute.value.params.project}`, "POST", {
+                name: input.name,
+                taskAssignees: assignees.value,
+                description: input.description,
+                priority: tasks.priorities,
+                status: tasks.status,
+                privacy: input.privacy,
+                dueDate: (dateTime.dateTime instanceof Date) ? dateTime.dateTime.toISOString() : dateTime.dateTime,
+                org: router.currentRoute.value.params.org,
+                project: router.currentRoute.value.params.project,
+            });
+
+            const { newTask } = res as Response;
+
+            tasks.pushNewTask(newTask);
+            tasks.getTotalTasks(tasks.totalTasks + 1);
+            popups.toggleNewTaskPopup(false);
+        } catch (error: any) {
+            const stringMessages = [];
+            switch (error.response.status) {
+                case 404:
+                    tasks.setMessages(error.response._data.message);
+                    break;
+                case 500:
+                    tasks.setMessages(error.response._data.message);
+                    break;
+                case 403:
+                    tasks.setMessages(error.response._data.message);
+                    break;
+                case 422:
+                    for (const messagesArray of Object.values(error.response._data.message)) {
+                        if (Array.isArray(messagesArray)) {
+                            stringMessages.push(...messagesArray.filter(msg => typeof msg === 'string'));
+                        }
                     }
-                }
-                tasks.setMessages(stringMessages);
-                break;
-            default:
-                break;
+                    tasks.setMessages(stringMessages);
+                    break;
+                default:
+                    break;
+            }
         }
     }
 
     async function updateTask(assignees: any) {
-        interface Response {
-            code: any;
-            message: string;
-            task: any;
-        }
+        try {
+            interface Response {
+                task: Task;
+            }
 
-        tasks.toggleUpdatingTask(true);
+            tasks.toggleUpdatingTask(true);
 
-        const res = await useApiFetch(`/api/task/update/${router.currentRoute.value.params.org}/${router.currentRoute.value.params.project}/${tasks.selectedTask.task_uuid}`, "PATCH", {
-            title: tasks.selectedTask.title,
-            task_assignees: assignees,
-            description: tasks.selectedTask.description,
-            priority: tasks.priorities,
-            status: tasks.status,
-            private: tasks.selectedTask.private,
-            files: tasks.selectedTask.files,
-            due_date: (dateTime.dateTime instanceof Date) ? dateTime.dateTime.toISOString() : dateTime.dateTime,
-            org: router.currentRoute.value.params.org,
-            project: router.currentRoute.value.params.project,
-            task: tasks.selectedTask.task_uuid,
-        }).finally(() => { tasks.toggleUpdatingTask(false) });
+            const res = await useApiFetch(`/api/task/update/${router.currentRoute.value.params.org}/${router.currentRoute.value.params.project}/${tasks.selectedTask.task_uuid}`, "PATCH", {
+                title: tasks.selectedTask.title,
+                task_assignees: assignees,
+                description: tasks.selectedTask.description,
+                priority: tasks.priorities,
+                status: tasks.status,
+                private: tasks.selectedTask.private,
+                files: tasks.selectedTask.files,
+                due_date: (dateTime.dateTime instanceof Date) ? dateTime.dateTime.toISOString() : dateTime.dateTime,
+                org: router.currentRoute.value.params.org,
+                project: router.currentRoute.value.params.project,
+                task: tasks.selectedTask.task_uuid,
+            }).finally(() => { tasks.toggleUpdatingTask(false) });
 
-        const { code, message, task } = res as Response;
+            const { task } = res as Response;
 
-        switch (code) {
-            case 200:
-                if (uploadFile.newFiles.length > 0) {
-                    uploadNewFiles();
-                } else {
-                    tasks.getSelectedTask(task);
-                    tasks.updateTask(task.task_uuid, task.members, task.statuses, task.priorities, task.due_date);
-                    tasks.refreshPriorities();
-                    task.priorities.map((priority: any) => tasks.setPriorities(priority));
-                }
-                break;
-            case 404:
-                tasks.setMessages(message);
-                break;
-            case 500:
-                tasks.setMessages(message);
-                break;
-            case 403:
-                tasks.setMessages(message);
-                break;
-            case 422:
-                const stringMessages = [];
-                for (const messagesArray of Object.values(message)) {
-                    if (Array.isArray(messagesArray)) {
-                        stringMessages.push(...messagesArray.filter(msg => typeof msg === 'string'));
+            if (uploadFile.newFiles.length > 0) {
+                uploadNewFiles();
+            } else {
+                tasks.getSelectedTask(task);
+                tasks.updateTask(task.task_uuid, task.members, task.statuses, task.priorities, task.due_date);
+                tasks.refreshPriorities();
+                task.priorities.map((priority: any) => tasks.setPriorities(priority));
+            }
+        } catch (error: any) {
+            const stringMessages = [];
+            switch (error.response.status) {
+                case 404:
+                    tasks.setMessages(error.response._data.message);
+                    break;
+                case 500:
+                    tasks.setMessages(error.response._data.message);
+                    break;
+                case 403:
+                    tasks.setMessages(error.response._data.message);
+                    break;
+                case 422:
+                    for (const messagesArray of Object.values(error.response._data.message)) {
+                        if (Array.isArray(messagesArray)) {
+                            stringMessages.push(...messagesArray.filter(msg => typeof msg === 'string'));
+                        }
                     }
-                }
-                tasks.setMessages(stringMessages);
-                break;
-            default:
-                break;
+                    tasks.setMessages(stringMessages);
+                    break;
+                default:
+                    break;
+            }
         }
     }
 
     async function uploadNewFiles() {
         if (uploadFile.newFiles.length > 0) {
             interface Response {
-                code: any;
-                message: string;
-                task: any;
+                code: number;
+                task: Task;
             }
 
             let formData = new FormData();
-            const config = useRuntimeConfig()
 
             for (let i = 0; i < uploadFile.newFiles.length; i++) {
                 formData.append('newFiles[]', uploadFile.newFiles[i]);
@@ -276,7 +281,7 @@ export default function useTasks() {
                     tasks.toggleUploadingFiles(false);
                 });
 
-            const { code, message, task } = res as Response;
+            const { code, task } = res as Response;
 
             if (code === 200) {
                 uploadFile.pushNewFiles([]);
@@ -286,40 +291,38 @@ export default function useTasks() {
     }
 
     async function deleteTask() {
-        interface Response {
-            code: any;
-            message: string;
-        }
-        tasks.toggleDeletingTask(true);
-        const res = await useApiFetch(`/api/task/delete/${router.currentRoute.value.params.org}/${router.currentRoute.value.params.project}/${tasks.selectedTask.task_uuid}`, "DELETE").finally(() => { tasks.toggleDeletingTask(false) });
-        const { code, message } = res as Response;
+        try {
+            tasks.toggleDeletingTask(true);
+            const res = await useApiFetch(`/api/task/delete/${router.currentRoute.value.params.org}/${router.currentRoute.value.params.project}/${tasks.selectedTask.task_uuid}`, "DELETE").finally(() => { tasks.toggleDeletingTask(false) });
 
-        switch (code) {
-            case 200:
-                tasks.deleteTask(tasks.selectedTask.task_uuid);
-                popups.toggleDeleteTaskPopup(false);
-                popups.toggleEditTaskPopup(false);
-                break;
-            case 404:
-                tasks.setMessages(message);
-                break;
-            case 500:
-                tasks.setMessages(message);
-                break;
-            case 403:
-                tasks.setMessages(message);
-                break;
-            case 422:
-                const stringMessages = [];
-                for (const messagesArray of Object.values(message)) {
-                    if (Array.isArray(messagesArray)) {
-                        stringMessages.push(...messagesArray.filter(msg => typeof msg === 'string'));
+            tasks.deleteTask(tasks.selectedTask.task_uuid);
+            popups.toggleDeleteTaskPopup(false);
+            popups.toggleEditTaskPopup(false);
+
+
+        } catch (error: any) {
+            const stringMessages = [];
+            switch (error.response.status) {
+                case 404:
+                    tasks.setMessages(error.response._data.message);
+                    break;
+                case 500:
+                    tasks.setMessages(error.response._data.message);
+                    break;
+                case 403:
+                    tasks.setMessages(error.response._data.message);
+                    break;
+                case 422:
+                    for (const messagesArray of Object.values(error.response._data.message)) {
+                        if (Array.isArray(messagesArray)) {
+                            stringMessages.push(...messagesArray.filter(msg => typeof msg === 'string'));
+                        }
                     }
-                }
-                tasks.setMessages(stringMessages);
-                break;
-            default:
-                break;
+                    tasks.setMessages(stringMessages);
+                    break;
+                default:
+                    break;
+            }
         }
     }
 

@@ -7,22 +7,14 @@ export default function useInvitations() {
 
     async function invitation(users: any) {
         try {
-            interface Response {
-                code: any;
-                message: any;
-                existing_users: any;
-            }
-
             const res = await useApiFetch(`/api/organization/invitation`, "POST", {
                 users: users
             });
-            console.log(res);
-
-            const { code, message, existing_users } = res as Response;
         } catch (error: any) {
+            const stringMessages = [];
+
             switch (error.response.status) {
                 case 422:
-                    const stringMessages = [];
                     for (const messagesArray of Object.values(error.response._data.data.message)) {
                         if (Array.isArray(messagesArray)) {
                             stringMessages.push(...messagesArray.filter(msg => typeof msg === 'string'));
@@ -32,6 +24,7 @@ export default function useInvitations() {
                     break;
                 case 500:
                     orgs.setMessages(error.response._data.data.message);
+                    break;
                 default:
                     orgs.setMessages("OOPS! Sorry, something went wrong with sending invitation link. Please try again later.");
                     break;
@@ -41,14 +34,13 @@ export default function useInvitations() {
 
     async function getInvitations() {
         interface Response {
-            code: any;
-            message: any;
-            invitations: any;
+            code: number;
+            invitations: Array<any>;
         }
         try {
             const res = await useApiFetch('/api/members/fetch/invitations');
 
-            const { code, message, invitations } = res as Response;
+            const { code, invitations } = res as Response;
 
             if (code === 200) {
                 members.getPendingInvitations(invitations);
@@ -83,14 +75,13 @@ export default function useInvitations() {
 
     async function acceptInvitation(invitation: any) {
         interface Response {
-            code: any;
-            message: any;
-            organization: any;
+            code: number;
+            organization: object;
         }
         try {
             const res = await useApiFetch(`/api/invitation/acceptance/${invitation}`, "POST");
 
-            const { code, message, organization } = res as Response;
+            const { code, organization } = res as Response;
 
             if (code === 200) {
                 members.slicePendingInvitation(invitation);
@@ -98,6 +89,8 @@ export default function useInvitations() {
                 orgs.createOrganization(organization);
             }
         } catch (error: any) {
+            const stringMessages = [];
+
             switch (error.response.status) {
                 case 500:
                     members.setMessages(error.response._data.data.message);
@@ -109,7 +102,6 @@ export default function useInvitations() {
                     members.setMessages(error.response._data.data.message);
                     break;
                 case 422:
-                    const stringMessages = [];
                     for (const messagesArray of Object.values(error.response._data.data.message)) {
                         if (Array.isArray(messagesArray)) {
                             stringMessages.push(...messagesArray.filter(msg => typeof msg === 'string'));
@@ -126,17 +118,18 @@ export default function useInvitations() {
 
     async function rejectInvitation(invitation: any) {
         interface Response {
-            code: any;
-            message: any;
+            code: number;
         }
         try {
             const res = await useApiFetch(`/api/invitation/reject/${invitation}`, "DELETE");
 
-            const { code, message } = res as Response;
+            const { code } = res as Response;
 
             members.slicePendingInvitation(invitation);
             members.setOutputCode(code);
         } catch (error: any) {
+            const stringMessages = [];
+            
             switch (error.response.status) {
                 case 500:
                     members.setMessages(error.response._data.data.message);
@@ -148,7 +141,6 @@ export default function useInvitations() {
                     members.setMessages(error.response._data.data.message);
                     break;
                 case 422:
-                    const stringMessages = [];
                     for (const messagesArray of Object.values(error.response._data.data.message)) {
                         if (Array.isArray(messagesArray)) {
                             stringMessages.push(...messagesArray.filter(msg => typeof msg === 'string'));

@@ -3,9 +3,15 @@ import { useMemberstore } from "~/server/store/members";
 import { usePopupsStore } from "~/server/store/popups";
 
 export default function useOrganizations() {
-    interface AcceptInvitationRes {
-        token: any;
-        expire: any;
+    interface Organization {
+        id: number;
+        org_uuid: string;
+        creator_id: number;
+        name: string;
+        description: string;
+        image: string;
+        created_at: string;
+        updated_at: string;
     }
     const orgs = useOrgsStore();
     const members = useMemberstore();
@@ -14,9 +20,9 @@ export default function useOrganizations() {
 
     async function getCurrentOrganization() {
         interface Response {
-            code: any;
-            message: any;
-            organization: any;
+            code: number;
+            message: string;
+            organization: Organization;
         }
 
         if (Object.keys(orgs.currentOrganization).length > 0 || members.orgMembers.length > 0) {
@@ -62,7 +68,7 @@ export default function useOrganizations() {
     async function getOrganizations() {
         try {
             interface Response {
-                organizations: any;
+                organizations: Array<any>;
             }
             if (orgs.organizations.length > 0) {
                 return;
@@ -91,7 +97,7 @@ export default function useOrganizations() {
     async function createOrganization(input: any) {
         try {
             interface Response {
-                organization: any;
+                organization: Organization;
             }
 
             orgs.toggleLoading(true);
@@ -109,9 +115,10 @@ export default function useOrganizations() {
             popups.toggleOrganizationPopup(false);
             window.location.href = `/board/${organization.org_uuid}`;
         } catch (error: any) {
+            const stringMessages = [];
+
             switch (error.response.status) {
                 case 422:
-                    const stringMessages = [];
                     for (const messagesArray of Object.values(error.response._data.message)) {
                         if (Array.isArray(messagesArray)) {
                             stringMessages.push(...messagesArray.filter(msg => typeof msg === 'string'));
@@ -121,6 +128,7 @@ export default function useOrganizations() {
                     break;
                 case 500:
                     orgs.setMessages(error.response._data.message);
+                    break;
                 default:
                     orgs.setMessages("OOPS! Sorry, something went wrong with creating new organization. Please try again later.");
                     break;
@@ -131,9 +139,9 @@ export default function useOrganizations() {
     async function updateOrganization(id: string, name: string, description: string) {
         try {
             interface Response {
-                organization: any;
-                message: any;
-                code: any;
+                organization: Organization;
+                message: string;
+                code: number;
             }
 
 
@@ -153,6 +161,8 @@ export default function useOrganizations() {
                 orgs.updateOrganization(organization);
             }
         } catch (error: any) {
+            const stringMessages = [];
+            
             switch (error.response.status) {
                 case 403:
                     orgs.setMessages(error.response._data.message);
@@ -162,7 +172,6 @@ export default function useOrganizations() {
                     orgs.setMessages(error.response._data.message);
                     break;
                 case 422:
-                    const stringMessages = [];
                     for (const messagesArray of Object.values(error.response._data.message)) {
                         if (Array.isArray(messagesArray)) {
                             stringMessages.push(...messagesArray.filter(msg => typeof msg === 'string'));
@@ -174,6 +183,7 @@ export default function useOrganizations() {
                 case 500:
                     orgs.setMessages(error.response._data.message);
                     orgs.setOutputCode(500);
+                    break;
                 default:
                     orgs.setOutputCode(500);
                     orgs.setMessages("OOPS! Sorry, something went wrong with creating new organization. Please try again later.");
@@ -185,7 +195,7 @@ export default function useOrganizations() {
     async function deleteOrganization(id: string) {
         try {
             interface Response {
-                organization: any;
+                organization: Organization;
                 sessions: number,
             }
 
@@ -218,6 +228,7 @@ export default function useOrganizations() {
                 case 500:
                     orgs.setMessages(error.response._data.message);
                     orgs.setOutputCode(500);
+                    break;
                 default:
                     orgs.setOutputCode(500);
                     orgs.setMessages("OOPS! Sorry, something went wrong with creating new organization. Please try again later.");

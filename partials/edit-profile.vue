@@ -125,14 +125,13 @@ const hasChanges = computed(() => {
                     </a-button>
                 </div>
 
-                <div v-if="profiles.messages" class="w-full text-base font-medium">
+                <div v-if="profiles.messages" :class="`w-full text-base font-medium ${profiles.outputCode === 200 ? 'text-green-600' : 'text-red-500'}`">
                     <ul v-if="Array.isArray(profiles.messages)">
-                        <li v-for="message in profiles.messages" :key="message"
-                            :class="`${profiles.outputCode == 200 ? 'text-green-500' : 'text-red-500'}`">
+                        <li v-for="message in profiles.messages" :key="message">
                             &cross;&nbsp;{{ message }}
                         </li>
                     </ul>
-                    <p v-else :class="`${profiles.outputCode == 200 ? 'text-green-500' : 'text-red-500'}`">
+                    <p v-else>
                         {{ profiles.messages }}
                     </p>
                 </div>

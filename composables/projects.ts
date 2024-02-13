@@ -4,6 +4,17 @@ import { useTasksStore } from "~/server/store/tasks";
 import { useOrgsStore } from "~/server/store/organizations";
 
 export default function useProjects() {
+    interface Project {
+        id: number;
+        project_uuid: string;
+        creator_id: number;
+        title: string;
+        description: string;
+        private: number;
+        budget: string;
+        created_at: string;
+        updated_at: string;
+    }
     const projects = useProjectsStore();
     const orgs = useOrgsStore();
     const tasks = useTasksStore();
@@ -14,9 +25,7 @@ export default function useProjects() {
     async function getProjects() {
         try {
             interface Response {
-                code: any;
-                message: any;
-                allProjects: any;
+                allProjects: Array<any>;
             }
             if (projects.projects.length > 0) {
                 return
@@ -27,7 +36,7 @@ export default function useProjects() {
                     projects.setLoadingProjects(false)
                 });
 
-            const { code, message, allProjects } = res as Response;
+            const { allProjects } = res as Response;
 
             projects.getProjects(allProjects);
         } catch (error: any) {
@@ -50,9 +59,7 @@ export default function useProjects() {
     async function currentProject() {
         try {
             interface Response {
-                code: any;
-                message: any;
-                project: any;
+                project: Project;
             }
             if ((!projects.activeProject || Object.keys(projects.activeProject).length > 0) ||
                 router.currentRoute.value.params.project === projects.activeProject.project_uuid) {
@@ -60,7 +67,7 @@ export default function useProjects() {
             }
 
             const res = await useApiFetch(`/api/project/active/project/${orgs.activeOrganization.org_uuid}/${router.currentRoute.value.params.project}`);
-            const { code, message, project } = res as Response;
+            const { project } = res as Response;
             projects.setCurrentProject(project);
             cookies.value !== project.project_uuid && tasks.getTodoTasks([]);
         } catch (error: any) {
@@ -82,9 +89,7 @@ export default function useProjects() {
     async function createProject(input: any) {
         try {
             interface Response {
-                code: any;
-                message: string;
-                newProject: any;
+                newProject: Project;
             }
             projects.setCreatingProject(true);
 
@@ -93,14 +98,14 @@ export default function useProjects() {
                     projects.setCreatingProject(false);
                 });
 
-            const { code, message, newProject } = res as Response;
+            const { newProject } = res as Response;
 
             projects.pushNewProject(newProject);
             popups.toggleNewProjectPopup(false);
         } catch (error: any) {
+            const stringMessages = [];
             switch (error.response.status) {
                 case 422:
-                    const stringMessages = [];
                     for (const messagesArray of Object.values(error.response._data.data.message)) {
                         if (Array.isArray(messagesArray)) {
                             stringMessages.push(...messagesArray.filter(msg => typeof msg === 'string'));
@@ -120,15 +125,14 @@ export default function useProjects() {
     async function getTotalProjects() {
         try {
             interface Response {
-                code: any;
-                message: any;
-                projectsCount: any;
+                code: number;
+                projectsCount: number;
             }
             if (projects.totalProjects > 0) {
                 return;
             }
             const res = await useApiFetch(`/api/project/total/count/${orgs.activeOrganization.org_uuid}`);
-            const { code, message, projectsCount } = res as Response;
+            const { code, projectsCount } = res as Response;
 
             if (code === 200) {
                 projects.getTotalProjects(projectsCount);
@@ -153,9 +157,8 @@ export default function useProjects() {
     async function editProject() {
         try {
             interface Response {
-                code: any;
-                message: any;
-                project: any;
+                code: number;
+                project: Project;
             }
             projects.setEditingProject(true);
 
@@ -170,7 +173,7 @@ export default function useProjects() {
                 projects.setEditingProject(false)
             });
 
-            const { code, message, project } = res as Response;
+            const { code, project } = res as Response;
 
             projects.getSelectedProject(project)
             projects.setMessages(message);
@@ -180,9 +183,9 @@ export default function useProjects() {
                 }
             });
         } catch (error: any) {
+            const stringMessages = [];
             switch (error.response.status) {
                 case 422:
-                    const stringMessages = [];
                     for (const messagesArray of Object.values(error.response._data.data.message)) {
                         if (Array.isArray(messagesArray)) {
                             stringMessages.push(...messagesArray.filter(msg => typeof msg === 'string'));
@@ -208,16 +211,10 @@ export default function useProjects() {
 
     async function deleteProject() {
         try {
-            interface Response {
-                code: any;
-                message: any;
-                deletedProject: any;
-            }
             projects.setDeletingProject(true);
             const res = await useApiFetch(`/api/project/delete/${orgs.activeOrganization.org_uuid}/${projects.selectedProject.project_uuid}`, "DELETE").finally(() => {
                 projects.setDeletingProject(false)
             });
-            const { code, message } = res as Response;
 
             projects.deleteProject(projects.selectedProject);
             popups.toggleDeleteProjectPopup(false);
@@ -229,9 +226,15 @@ export default function useProjects() {
                 navigateTo(`/board/${router.currentRoute.value.params.org}`); 
             }
         } catch (error: any) {
+            const stringMessages = [];
             switch (error.response.status) {
                 case 422:
-                    projects.setMessages(error.response._data.data.message);
+                    for (const messagesArray of Object.values(error.response._data.data.message)) {
+                        if (Array.isArray(messagesArray)) {
+                            stringMessages.push(...messagesArray.filter(msg => typeof msg === 'string'));
+                        }
+                    }
+                    projects.setMessages(stringMessages);
                     break;
                 case 500:
                     projects.setMessages(error.response._data.data.message);
