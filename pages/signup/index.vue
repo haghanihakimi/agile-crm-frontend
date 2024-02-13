@@ -53,7 +53,7 @@ const signupForm = ref({
                             class="min-h-[38px] block px-2 w-full text-base font-medium tracking-wide text-mystic-midnight bg-slate-100 rounded border-1 border-gray-400 appearance-none transition duration-200 ring-8 ring-transparent focus:bg-slate-50 focus:ring-2 focus:ring-tranquility focus:outline-none peer"
                             placeholder=" " />
                         <label for="fristname"
-                            class="absolute cursor-text text-base text-mystic-midnight text-opacity-75 duration-200 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-slate-100 px-2 peer-focus:px-2 peer-focus:text-mystic-midnight peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-8 peer-focus:bg-opacity-0 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-1">
+                            class="absolute cursor-text text-base text-mystic-midnight text-opacity-75 duration-200 transform -translate-y-8 scale-75 top-2 z-10 origin-[0] bg-slate-100 px-2 peer-focus:px-2 peer-focus:text-mystic-midnight peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-8 peer-focus:bg-opacity-0 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-1">
                             First Name
                         </label>
                     </div>
@@ -62,7 +62,7 @@ const signupForm = ref({
                             class="min-h-[38px] block px-2 w-full text-base font-medium tracking-wide text-mystic-midnight bg-slate-100 rounded border-1 border-gray-400 appearance-none transition duration-200 ring-8 ring-transparent focus:bg-slate-50 focus:ring-2 focus:ring-tranquility focus:outline-none peer"
                             placeholder=" " />
                         <label for="lastname"
-                            class="absolute cursor-text text-base text-mystic-midnight text-opacity-75 duration-200 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-slate-100 px-2 peer-focus:px-2 peer-focus:text-mystic-midnight peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-8 peer-focus:bg-opacity-0 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-1">
+                            class="absolute cursor-text text-base text-mystic-midnight text-opacity-75 duration-200 transform -translate-y-8 scale-75 top-2 z-10 origin-[0] bg-slate-100 px-2 peer-focus:px-2 peer-focus:text-mystic-midnight peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-8 peer-focus:bg-opacity-0 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-1">
                             Last Name
                         </label>
                     </div>
@@ -73,7 +73,7 @@ const signupForm = ref({
                         class="min-h-[38px] block px-2 w-full text-base font-medium tracking-wide text-mystic-midnight bg-slate-100 rounded border-1 border-gray-400 appearance-none ring-8 ring-transparent transition duration-200 focus:bg-slate-50 focus:ring-2 focus:ring-tranquility focus:outline-none peer"
                         placeholder=" " />
                     <label for="email_address"
-                        class="absolute cursor-text text-base text-mystic-midnight text-opacity-75 duration-200 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-slate-100 px-2 peer-focus:px-2 peer-focus:text-mystic-midnight peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-8 peer-focus:bg-opacity-0 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-1">
+                        class="absolute cursor-text text-base text-mystic-midnight text-opacity-75 duration-200 transform -translate-y-8 scale-75 top-2 z-10 origin-[0] bg-slate-100 px-2 peer-focus:px-2 peer-focus:text-mystic-midnight peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-8 peer-focus:bg-opacity-0 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-1">
                         Email Address
                     </label>
                 </div>
@@ -82,7 +82,7 @@ const signupForm = ref({
                         class="min-h-[38px] block px-2 w-full text-base font-medium tracking-wide text-mystic-midnight bg-slate-100 rounded border-1 border-gray-400 appearance-none ring-8 ring-transparent transition duration-200 focus:bg-slate-50 focus:ring-2 focus:ring-tranquility focus:outline-none peer"
                         placeholder=" " />
                     <label for="password"
-                        class="absolute cursor-text text-base text-mystic-midnight text-opacity-75 duration-200 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-slate-100 px-2 peer-focus:px-2 peer-focus:text-mystic-midnight peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-8 peer-focus:bg-opacity-0 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-1">
+                        class="absolute cursor-text text-base text-mystic-midnight text-opacity-75 duration-200 transform -translate-y-8 scale-75 top-2 z-10 origin-[0] bg-slate-100 px-2 peer-focus:px-2 peer-focus:text-mystic-midnight peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-8 peer-focus:bg-opacity-0 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-1">
                         Password
                     </label>
                 </div>
@@ -92,7 +92,7 @@ const signupForm = ref({
                         class="min-h-[38px] block px-2 w-full text-base font-medium tracking-wide text-mystic-midnight bg-slate-100 rounded border-1 border-gray-400 appearance-none ring-8 ring-transparent transition duration-200 focus:bg-slate-50 focus:ring-2 focus:ring-tranquility focus:outline-none peer"
                         placeholder=" " />
                     <label for="password_confirmation"
-                        class="absolute cursor-text text-base text-mystic-midnight text-opacity-75 duration-200 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-slate-100 px-2 peer-focus:px-2 peer-focus:text-mystic-midnight peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-8 peer-focus:bg-opacity-0 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-1">
+                        class="absolute cursor-text text-base text-mystic-midnight text-opacity-75 duration-200 transform -translate-y-8 scale-75 top-2 z-10 origin-[0] bg-slate-100 px-2 peer-focus:px-2 peer-focus:text-mystic-midnight peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-8 peer-focus:bg-opacity-0 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-1">
                         Confirm Password
                     </label>
                 </div>

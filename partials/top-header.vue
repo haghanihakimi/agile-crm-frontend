@@ -1,5 +1,7 @@
 <script setup>
-import { ref, watch } from 'vue';
+import { ref } from 'vue';
+import { Vue3Lottie } from 'vue3-lottie';
+import { debounce } from 'lodash';
 import { onClickOutside } from '@vueuse/core';
 import { usePopupsStore } from '~/server/store/popups';
 import { useOrgsStore } from '~/server/store/organizations';
@@ -7,6 +9,9 @@ import BtnGeneral from '~/components/buttons/general.vue';
 import { useMemberstore } from '~/server/store/members';
 import { useProfilesStore } from '~/server/store/profiles';
 import useUsers from '~/composables/users';
+import useSearch from '~/composables/search';
+import { useSearchStore } from '~/server/store/search';
+import Loading from "~/assets/images/loading.json";
 
 const dateNow = new Date();
 const dayjs = useDayjs();
@@ -15,12 +20,16 @@ const profileMenuRef = ref(null);
 const profileMenuVis = ref(false);
 const createNewMenuRef = ref(null);
 const createNewMenuVis = ref(false);
+const searchResultRef = ref(null);
+const searchResultsList = ref(false);
 const popups = usePopupsStore();
 const organizations = useOrgsStore();
 const members = useMemberstore();
 const profiles = useProfilesStore();
 const { signOut } = useUsers();
 const { $dayTime, $fetchData } = useNuxtApp()
+const { search } = useSearch();
+const searches = useSearchStore();
 
 onClickOutside(profileMenuRef, () => {
     profileMenuVis.value = false
@@ -28,6 +37,23 @@ onClickOutside(profileMenuRef, () => {
 onClickOutside(createNewMenuRef, () => {
     createNewMenuVis.value = false
 })
+onClickOutside(searchResultRef, () => {
+    searchResultsList.value = false
+})
+
+const searchDebounce = debounce((query) => {
+    search(query).finally(() => {
+        if (searches.results.length > 0) {
+            searchResultsList.value = true;
+        } else {
+            searchResultsList.value = false
+        }
+    })
+}, 750);
+
+const searchQuery = (input) => {
+    searchDebounce(input)
+}
 
 onMounted(() => {
     $fetchData();
@@ -52,7 +78,8 @@ onMounted(() => {
                     <!-- Search -->
                     <div class="w-full relative">
                         <input type="text" placeholder="Search Projects, Tasks & People..."
-                            class="w-full h-10 shadow-md rounded bg-deep-ocean-blue pl-4 pr-14 border border-gray-700 text-base text-gray-200 ring-4 ring-transparent transition duration-200 focus:ring-1 focus:ring-tranquility" />
+                            @input="(e) => { searchQuery(e.target.value) }" @click="searchResultsList = true"
+                            class="w-full h-10 shadow-md rounded bg-deep-ocean-blue pl-4 pr-14 border border-gray-700 text-base text-gray-200 ring-8 ring-transparent transition duration-200 focus:ring-1 focus:ring-tranquility" />
                         <div class="w-auto h-10 flex flex-row gap-0 rounded-tr rounded-br absolute top-0 right-0">
                             <!-- <BtnGeneral :type="'button'" :width="'w-10'" :height="'h-10'" :px="'px-1'" :py="'py-1'"
                                 :radius="'rounded-none'">
@@ -64,9 +91,35 @@ onMounted(() => {
                             </BtnGeneral>
                         </div>
                         <!-- results container -->
-                        <div v-if="false"
+                        <div v-if="(searches.results && searches.results.length > 0 && searchResultsList) ||
+                            searches.searching" ref="searchResultRef"
                             class="w-full max-h-[480px] overflow-auto overeflow-x-hidden top-11 rounded shadow-md bg- absolute bg-deep-ocean-blue border border-gray-700">
-                            <!--  -->
+                            <ul v-if="searches.results && searches.results.length > 0 && !searches.searching">
+                                <li class="block" v-for="(result, i) in searches.results" :key="i">
+                                    <NuxtLink to="/" class="text-gray-300 font-medium text-base p-2 block"
+                                        v-if="result.task_uuid">
+                                        Task: {{ result.title }}
+                                    </NuxtLink>
+                                    <NuxtLink to="/" class="text-gray-300 font-medium text-base p-2 block"
+                                        v-if="result.project_uuid">
+                                        Project: {{ result.title }}
+                                    </NuxtLink>
+                                    <NuxtLink to="/"
+                                        class="w-full text-gray-300 font-medium text-base p-2 inline-flex flex-row items-center justify-start gap-2"
+                                        v-if="result.email">
+                                        <NuxtImg :src="result.image" class="w-8 h-8 rounded-full object-cover shrink-0" />
+                                        <span>
+                                            {{ result.firstname }} {{ result.lastname }}
+                                        </span>
+                                    </NuxtLink>
+                                </li>
+                            </ul>
+                            <div class="w-fit flex justify-start items-start" v-if="searches.searching">
+                                <ClientOnly>
+                                    <Vue3Lottie :animationData="Loading" :height="40" :width="40" :loop="true"
+                                        :autoPlay="true" :speed="1" />
+                                </ClientOnly>
+                            </div>
                         </div>
                     </div>
                 </div>
