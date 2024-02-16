@@ -38,7 +38,9 @@ export const usePopupsStore = defineStore('popups', {
             firstname: '',
             surname: '',
             status: false,
-        }
+        },
+        forgottenAccountEmail: false,
+        changePassword: false,
     }),
     actions: {
         toggleMemberInvitation(status: boolean) {
@@ -101,6 +103,12 @@ export const usePopupsStore = defineStore('popups', {
             this.removeOrgMemberPopup.firstname = firstname;
             this.removeOrgMemberPopup.surname = surname;
             this.removeOrgMemberPopup.status = status;
+        },
+        toggleForgottenAccountEmail(status: boolean) {
+            this.forgottenAccountEmail = status;
+        },
+        toggleChangePassword(status: boolean){
+            this.changePassword = status;
         },
     },
 })

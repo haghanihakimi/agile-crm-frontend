@@ -9,7 +9,7 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     if (!auth) {
         const token = useCookie('auth');
         token.value = null;
-        return navigateTo('/')
+        return navigateTo('/login')
     } else {
         profiles.setProfile(auth);
     }

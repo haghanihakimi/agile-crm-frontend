@@ -37,7 +37,7 @@ onMounted(async () => {
 <template>
     <div class="w-full relative">
         <NuxtLoadingIndicator />
-        <dashboardVue v-if="profiles.auth" />
+        <dashboardVue />
     </div>
 </template>
 

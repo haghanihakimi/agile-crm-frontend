@@ -1,4 +1,5 @@
 import { useOrgsStore } from "~/server/store/organizations";
+import { usePopupsStore } from "~/server/store/popups";
 import { useProfilesStore } from "~/server/store/profiles";
 
 
@@ -16,7 +17,7 @@ export default function useUsers() {
         created_at: string;
     }
     const profiles = useProfilesStore();
-    const orgs = useOrgsStore();
+    const router = useRouter();
 
     async function signUp(user: any) {
         interface Response {
@@ -321,6 +322,135 @@ export default function useUsers() {
         }
     }
 
+    async function requestResetPassword(email: string) {
+        try {
+            interface Response {
+                code: number;
+                message: string;
+            }
+            if (!profiles.loadingProfile) {
+                profiles.toggleLoadingProfile(true);
+
+                const res = await useApiFetch('/api/forgot-password', "POST", {
+                    email: profiles.profile.user ? profiles.profile.user.email : email,
+                })
+                    .finally(() => {
+                        profiles.toggleLoadingProfile(false);
+                    });
+                const { code, message } = res as Response;
+
+                profiles.getMessage(message);
+                profiles.setOutputCode(code);
+            }
+        } catch (error: any) {
+            const stringMessages = [];
+
+            switch (error.response.status) {
+                case 401:
+                    profiles.getMessage("Unauthorized access!");
+                    profiles.setOutputCode(error.response.status);
+                    break;
+                case 500:
+                    profiles.getMessage(error.response._data.message);
+                    break;
+                case 403:
+                    profiles.getMessage(error.response._data.message);
+                    break;
+                case 404:
+                    profiles.getMessage(error.response._data.message);
+                    break;
+                case 422:
+                    for (const messagesArray of Object.values(error.response._data.message)) {
+                        if (Array.isArray(messagesArray)) {
+                            stringMessages.push(...messagesArray.filter(msg => typeof msg === 'string'));
+                        }
+                    }
+                    profiles.getMessage(stringMessages);
+                    profiles.setOutputCode(error.response.status);
+                    break;
+                case 429:
+                    profiles.getMessage('Please wait a minute and try again.');
+                    profiles.setOutputCode(429);
+                    break;
+                default:
+                    profiles.getMessage(error.response._data.message);
+                    break;
+            }
+        }
+    }
+
+    async function passwordReset(input: { current_password: string, new_password: string, new_password_confirmation: string }) {
+        try {
+            interface Response {
+                code: number;
+                message: string;
+            }
+            if (!profiles.loadingProfile) {
+                profiles.toggleLoadingProfile(true);
+
+                if (router.currentRoute.value.params.username) {
+                    const res = await useApiFetch(`/api/reset/password/${router.currentRoute.value.params.username}`, "POST", {
+                        current_password: input.current_password,
+                        new_password: input.new_password,
+                        new_password_confirmation: input.new_password_confirmation,
+                        signature: router.currentRoute.value.query.signature
+                    })
+                        .finally(() => {
+                            profiles.toggleLoadingProfile(false);
+                        });
+                    const { code, message } = res as Response;
+                    profiles.getMessage(message);
+                    profiles.setOutputCode(code);
+                } else {
+                    const res = await useApiFetch('/api/user/change/password', "POST", {
+                        current_password: input.current_password,
+                        new_password: input.new_password,
+                        new_password_confirmation: input.new_password_confirmation
+                    })
+                        .finally(() => {
+                            profiles.toggleLoadingProfile(false);
+                        });
+                    const { code, message } = res as Response;
+                    profiles.getMessage(message);
+                    profiles.setOutputCode(code);
+                }
+            }
+        } catch (error: any) {
+            const stringMessages = [];
+
+            switch (error.response.status) {
+                case 401:
+                    profiles.getMessage("Unauthorized access!");
+                    profiles.setOutputCode(error.response.status);
+                    break;
+                case 500:
+                    profiles.getMessage(error.response._data.message);
+                    break;
+                case 403:
+                    profiles.getMessage(error.response._data.message);
+                    break;
+                case 404:
+                    profiles.getMessage(error.response._data.message);
+                    break;
+                case 422:
+                    for (const messagesArray of Object.values(error.response._data.message)) {
+                        if (Array.isArray(messagesArray)) {
+                            stringMessages.push(...messagesArray.filter(msg => typeof msg === 'string'));
+                        }
+                    }
+                    profiles.getMessage(stringMessages);
+                    profiles.setOutputCode(error.response.status);
+                    break;
+                case 429:
+                    profiles.getMessage("Please wait a minute and try again.");
+                    break;
+                default:
+                    profiles.getMessage(error.response._data.message);
+                    break;
+            }
+        }
+    }
+
     return {
         signUp,
         sginIn,
@@ -329,5 +459,7 @@ export default function useUsers() {
         updateProfileImage,
         removeProfile,
         fetchUsers,
+        requestResetPassword,
+        passwordReset,
     }
 }

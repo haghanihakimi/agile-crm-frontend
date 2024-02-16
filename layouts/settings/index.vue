@@ -11,6 +11,8 @@ import sidebarVue from "~/partials/sidebar.vue";
 import topHeader from "~/partials/top-header.vue";
 import editProfile from '~/partials/edit-profile.vue';
 import deleteProfile from '~/partials/delete-profile.vue';
+import forgottenAccountEmail from '~/partials/forgotten-account-email.vue';
+import changePassword from '~/partials/change-password.vue';
 import { useProfilesStore } from '~/server/store/profiles';
 import { usePopupsStore } from '~/server/store/popups';
 import useUsers from '~/composables/users';
@@ -83,6 +85,10 @@ useRafFn(() => {
             <editProfile v-if="popups.editProfilePopup" />
 
             <deleteProfile v-if="popups.deleteAccountPopup" />
+
+            <changePassword v-if="popups.changePassword" />
+
+            <forgottenAccountEmail v-if="popups.forgottenAccountEmail" />
 
             <div class="w-full max-w-5xl mx-auto relative px-6 pt-12 pb-6 flex flex-col gap-6">
                 <!-- profile image and name -->
@@ -207,7 +213,7 @@ useRafFn(() => {
 
                             <label class="text-base font-semibold flex flex-col gap-2 text-gray-300">
                                 <span class="text-gray-400">Security</span>
-                                <a-button type="button"
+                                <a-button type="button" @click="popups.toggleChangePassword(true)"
                                     class="w-fit text-base text-tranquility bg-mystic-midnight p-0 font-medium">
                                     Change password
                                 </a-button>

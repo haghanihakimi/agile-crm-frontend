@@ -27,6 +27,7 @@ export const useProfilesStore = defineStore('profiles', {
         loadingProfile: false,
         messages: '',
         outputCode: 0,
+        verifyPasswordReset: false,
         savingChanges: false,
         removingProfile: false,
     }),
@@ -60,6 +61,9 @@ export const useProfilesStore = defineStore('profiles', {
         },
         getUser(id: any) {
             this.userProfile = this.users.find((user) => user.id == id);
+        },
+        toggleVerifyPasswordReset(status: boolean) {
+            this.verifyPasswordReset = status
         }
     },
 })
