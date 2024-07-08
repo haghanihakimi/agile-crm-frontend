@@ -18,7 +18,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     apiSecret: '',
     public: {
-      backendDomain: "http://localhost:443"
+      backendDomain: "https://agile.mylabprojects.com"
     }
   },
   modules: [
