@@ -3,6 +3,8 @@
 This is the frontend user interface for the Agile App project. Agile App is a web application designed to facilitate agile project management by providing tools for task management, organization management, project management, and user management.
 </p>
 
+<h2><a href="https://agile.app.mylabprojects.com" target="_blank">Demo</a></h2>
+
 ## Features
 <ul>
 <li>Authentication: Users can register and login securely to access their account.</li>
