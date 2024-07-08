@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue';
 import { Vue3Lottie } from 'vue3-lottie';
-// import { debounce } from 'lodash';
+import debounce from 'lodash';
 import { onClickOutside } from '@vueuse/core';
 import { usePopupsStore } from '~/server/store/popups';
 import { useOrgsStore } from '~/server/store/organizations';
@@ -41,18 +41,15 @@ onClickOutside(searchResultRef, () => {
     searchResultsList.value = false
 })
 
-// const searchDebounce = debounce((query) => {
-//     search(query).finally(() => {
-//         if (searches.results.length > 0) {
-//             searchResultsList.value = true;
-//         } else {
-//             searchResultsList.value = false
-//         }
-//     })
-// }, 750);
-const searchDebounce = () => {
-    // 
-}
+const searchDebounce = debounce((query) => {
+    search(query).finally(() => {
+        if (searches.results.length > 0) {
+            searchResultsList.value = true;
+        } else {
+            searchResultsList.value = false
+        }
+    })
+}, 750);
 
 const searchQuery = (input) => {
     searchDebounce(input)

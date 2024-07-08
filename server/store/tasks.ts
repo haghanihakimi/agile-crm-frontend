@@ -75,7 +75,6 @@ export const useTasksStore = defineStore('tasks', {
         },
         pushNewTask(task: any) {
             this.todoTasks.push(task);
-            console.log(this.todoTasks);
         },
         toggleLoadingTodoTasks(status: boolean) {
             this.loadingTodoTasks = status

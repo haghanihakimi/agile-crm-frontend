@@ -109,8 +109,6 @@ export default function useMembers() {
                     members.toggleRemovingMember(false);
                 }) as Response;
 
-            console.log(res);
-
             const { code } = res;
 
             members.setOutputCode(code);
